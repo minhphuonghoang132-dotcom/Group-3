@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PreventAir AI · Interactive Technical Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#0c1310; --panel:#131e1a; --panel2:#18251f; --line:#243329; --line2:#2f4137;
+  --ink:#e7f0ec; --mid:#a6bab2; --dim:#7b918a;
+  --teal:#2ec4a6; --teal-d:#1c8a75; --amber:#e9a93f; --red:#e2624a; --green:#5cc47f; --blue:#5aa9e6;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);
+  font:14px/1.55 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.mono{font-family:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px 64px}
+header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,#101a16,#0c1310);position:sticky;top:0;z-index:40}
+.hdr{max-width:1240px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em;font-size:16px}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(46,196,166,.15)}
+.logo span{color:var(--teal)}
+.tag{font-size:11px;color:var(--dim);border:1px solid var(--line2);border-radius:999px;padding:2px 9px}
+.lang{display:flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden;margin-left:auto}
+.lang button{background:none;border:0;color:var(--mid);font:inherit;font-size:12px;font-weight:650;padding:5px 12px;cursor:pointer}
+.lang button.on{background:var(--teal);color:#ffffff}
+nav{display:flex;gap:2px;flex-wrap:wrap;width:100%}
+nav button{background:none;border:1px solid transparent;color:var(--mid);font:inherit;font-size:13px;padding:7px 13px;border-radius:8px;cursor:pointer}
+nav button:hover{color:var(--ink);background:#18241f}
+nav button.on{background:rgba(46,196,166,.12);color:var(--teal);border-color:rgba(46,196,166,.3)}
+.page{display:none;padding-top:26px}
+.page.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+h2.t{font-size:20px;margin:0 0 4px}
+p.sub{color:var(--mid);margin:0 0 20px;max-width:82ch}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}
+.g23{grid-template-columns:1.35fr 1fr}.g32{grid-template-columns:1fr 1.5fr}
+.gmap{grid-template-columns:.85fr 1.15fr}
+@media(max-width:900px){.g3,.g2,.g23,.g32,.gmap{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h3{margin:0 0 3px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.card .hint{color:var(--dim);font-size:12px;margin:0 0 12px}
+.tile .val{font-size:30px;font-weight:700;line-height:1.1;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.tile .cap{color:var(--mid);font-size:12.5px}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;padding:3px 9px;border-radius:999px;text-transform:uppercase}
+.p-hi{background:rgba(226,98,74,.16);color:#ff8f76;border:1px solid rgba(226,98,74,.35)}
+.p-md{background:rgba(233,169,63,.14);color:#f2bd67;border:1px solid rgba(233,169,63,.32)}
+.p-lo{background:rgba(92,196,127,.14);color:#79d494;border:1px solid rgba(92,196,127,.3)}
+.p-n{background:rgba(90,169,230,.13);color:#8cc6f2;border:1px solid rgba(90,169,230,.3)}
+.layers{display:flex;flex-direction:column;gap:8px}
+.layer{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+.layer .id{font-weight:700;font-size:12px;color:var(--dim)}
+.layer .nm{font-size:13px}.layer .nm small{display:block;color:var(--dim);font-size:11.5px}
+.st{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.st.ok{background:rgba(92,196,127,.14);color:#79d494}
+.st.bad{background:rgba(226,98,74,.16);color:#ff8f76}
+.st.unk{background:rgba(166,186,178,.12);color:var(--mid)}
+label.ctl{display:block;margin:0 0 14px}
+label.ctl .lbl{display:flex;justify-content:space-between;font-size:12.5px;color:var(--mid);margin-bottom:5px}
+label.ctl .lbl b{color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:3px;background:var(--line2);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--teal);cursor:pointer;border:3px solid #0c1310;box-shadow:0 0 0 1px var(--teal)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--teal);cursor:pointer;border:3px solid #0c1310}
+select{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px}
+.chk{display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);cursor:pointer;margin-bottom:7px;font-size:13px}
+.chk input{accent-color:var(--teal);width:15px;height:15px;cursor:pointer}
+.chk .ce{margin-left:auto;font-size:11px;color:var(--dim)}
+.chk.off{opacity:.55}
+button.act{background:var(--teal);color:#ffffff;border:0;border-radius:8px;padding:9px 15px;font:inherit;font-weight:650;font-size:13px;cursor:pointer}
+button.act:hover{background:#40d8b9}
+button.ghost{background:transparent;color:var(--mid);border:1px solid var(--line2);border-radius:8px;padding:9px 15px;font:inherit;font-size:13px;cursor:pointer}
+button.ghost:hover{color:var(--ink);border-color:var(--teal)}
+button:disabled{opacity:.45;cursor:default}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:12.5px}
+.kv dt{color:var(--dim)}.kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.note{font-size:12px;color:var(--dim);border-left:2px solid var(--teal-d);padding-left:11px;margin-top:12px}
+.tt{position:fixed;pointer-events:none;background:#08110e;border:1px solid var(--line2);border-radius:8px;padding:9px 11px;font-size:12px;opacity:0;transition:opacity .12s;z-index:99;max-width:260px;box-shadow:0 8px 26px rgba(0,0,0,.5)}
+table.d{width:100%;border-collapse:collapse;font-size:12.5px}
+table.d th{text-align:left;color:var(--dim);font-weight:600;font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:7px 9px;border-bottom:1px solid var(--line2)}
+table.d td{padding:8px 9px;border-bottom:1px solid var(--line)}
+table.d tr:last-child td{border-bottom:0}
+table.d tr.sel td{background:rgba(46,196,166,.08)}
+table.d tbody tr{cursor:pointer}
+table.d tbody tr:hover td{background:#18251f}
+.phone{width:290px;border:1px solid var(--line2);border-radius:22px;background:#0a1411;padding:12px;margin:0 auto}
+.phone .bar{display:flex;justify-content:space-between;font-size:10px;color:var(--dim);padding:0 4px 9px}
+.msg{background:#152420;border:1px solid var(--line);border-radius:12px;border-top-left-radius:3px;padding:11px 12px;font-size:12.5px;margin-bottom:9px}
+.msg .from{font-size:10.5px;color:var(--teal);font-weight:700;letter-spacing:.04em;margin-bottom:5px}
+.msg .btns{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.msg .btns span{font-size:10.5px;border:1px solid var(--line2);border-radius:6px;padding:4px 8px;color:var(--mid)}
+.msg .btns span.pri{border-color:var(--teal);color:var(--teal)}
+.msg.me{background:#10201b;border-top-left-radius:12px;border-top-right-radius:3px;margin-left:38px}
+.tl{position:relative;padding-left:24px}
+.tl:before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line2)}
+.step{position:relative;margin-bottom:14px;opacity:.32;transition:opacity .35s}
+.step.on{opacity:1}
+.step:before{content:'';position:absolute;left:-24px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--line2);transition:all .35s}
+.step.on:before{border-color:var(--teal);background:var(--teal);box-shadow:0 0 0 4px rgba(46,196,166,.16)}
+.step .tm{font-size:11px;color:var(--teal);font-weight:700;letter-spacing:.04em}
+.step .hd{font-size:13.5px;font-weight:650;margin:1px 0 2px}
+.step .bd{font-size:12.5px;color:var(--mid)}
+.step .tech{font-size:11px;color:var(--dim);margin-top:3px}
+.plane{border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:9px;background:var(--panel)}
+.plane .ph{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.plane .pn{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+.plane .fpt{margin-left:auto;font-size:11px;color:var(--teal);border:1px solid rgba(46,196,166,.3);border-radius:999px;padding:2px 9px}
+.boxes{display:flex;gap:7px;flex-wrap:wrap}
+.box{background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--mid)}
+.arrow{text-align:center;color:var(--line2);font-size:16px;line-height:1;margin:-3px 0 6px}
+footer{border-top:1px solid var(--line);margin-top:40px;padding-top:16px;color:var(--dim);font-size:11.5px}
+.warnbox{background:rgba(233,169,63,.07);border:1px solid rgba(233,169,63,.25);border-radius:10px;padding:12px 14px;font-size:12.5px;color:#f0cf95}
+
+.prog{height:5px;border-radius:3px;background:#0f1a16;overflow:hidden;margin:2px 0 16px}
+.prog i{display:block;height:100%;width:0;background:var(--teal);border-radius:3px;transition:width .12s linear}
+.phases{display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap}
+.phase{flex:1;min-width:96px;border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:var(--panel2);
+  font-size:12px;color:var(--dim);transition:all .3s;text-align:center}
+.phase.done{color:var(--mid);border-color:var(--line2)}
+.phase.act{border-color:var(--teal);background:rgba(46,196,166,.12);color:var(--teal);font-weight:700}
+.spd{display:flex;gap:3px;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.spd button{background:none;border:0;color:var(--mid);font:inherit;font-size:11.5px;padding:6px 10px;cursor:pointer}
+.spd button.on{background:var(--teal);color:#ffffff;font-weight:700}
+.step.cur{opacity:1}
+.step.cur .hd{color:var(--teal)}
+.step.cur:before{box-shadow:0 0 0 6px rgba(46,196,166,.22)}
+.capk{font-size:11px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.recbox{background:rgba(46,196,166,.09);border:1px solid rgba(46,196,166,.32);border-radius:9px;padding:11px 13px;font-size:13.5px;line-height:1.5}
+.drvrow{display:flex;align-items:center;gap:9px;font-size:13px;margin-bottom:7px}
+.drvrow .dt{width:8px;height:8px;border-radius:50%;flex:none}
+.scnbox{background:rgba(233,169,63,.08);border:1px solid rgba(233,169,63,.28);border-radius:9px;
+  padding:10px 13px;font-size:12.8px;color:#eccd93;margin-bottom:4px}
+/* ---------- CCTV ---------- */
+.camwrap{position:relative;border-radius:10px;overflow:hidden;background:#000;border:1px solid var(--line2)}
+.camwrap svg{display:block}
+.banner{position:absolute;left:12px;top:44px;display:flex;align-items:center;gap:8px;
+  padding:7px 13px;border-radius:8px;font-size:12.5px;font-weight:700;letter-spacing:.04em;
+  backdrop-filter:blur(3px);transition:opacity .3s}
+.banner.bad{background:rgba(226,98,74,.9);color:#160604}
+.banner.ok{background:rgba(92,196,127,.92);color:#04160b}
+.banner.warn{background:rgba(233,169,63,.92);color:#1a1204}
+.banner .bdot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:bp 1.2s infinite}
+@keyframes bp{50%{opacity:.2}}
+.camctl{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.camctl button{background:var(--panel2);border:1px solid var(--line2);color:var(--mid);font:inherit;font-size:12px;
+  padding:6px 12px;border-radius:999px;cursor:pointer}
+.camctl button:hover{color:var(--ink);border-color:var(--teal)}
+.camctl button.on{background:rgba(46,196,166,.14);border-color:var(--teal);color:var(--teal)}
+.det{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.det:last-child{border-bottom:0}
+.det .cls{font-family:"SF Mono",ui-monospace,Consolas,monospace;font-size:12.5px;min-width:132px}
+.det .bar{flex:1;height:6px;border-radius:3px;background:#0f1a16;overflow:hidden}
+.det .bar i{display:block;height:100%;border-radius:3px}
+.det .cf{font-family:"SF Mono",ui-monospace,Consolas,monospace;font-size:12px;width:34px;text-align:right;color:var(--mid)}
+.det .lay{font-size:10.5px;border:1px solid var(--line2);border-radius:5px;padding:2px 6px;color:var(--dim)}
+/* ---------- before / after ---------- */
+.ba{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line2);background:#000}
+.ba .lay2{position:absolute;inset:0}
+.ba .lay2 svg{width:100%;height:100%}
+.ba .divider{position:absolute;top:0;bottom:0;width:2px;background:var(--teal);pointer-events:none;box-shadow:0 0 12px rgba(46,196,166,.6)}
+.ba .knob{position:absolute;top:50%;width:34px;height:34px;margin-left:-17px;margin-top:-17px;border-radius:50%;
+  background:var(--teal);color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;pointer-events:none}
+.ba input[type=range]{position:absolute;inset:auto 0 0 0;top:0;height:100%;width:100%;opacity:0;cursor:ew-resize;margin:0}
+.batag{position:absolute;bottom:40px;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:6px;letter-spacing:.03em}
+.batag.l{left:12px;background:rgba(226,98,74,.9);color:#160604}
+.batag.r{right:12px;background:rgba(92,196,127,.92);color:#04160b}
+
+/* system map */
+.stage{display:grid;grid-template-columns:40px 1fr;gap:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel);
+  padding:12px 14px;cursor:pointer;transition:border-color .2s,background .2s}
+.stage:hover{border-color:var(--line2);background:var(--panel2)}
+.stage.on{border-color:var(--teal);background:rgba(46,196,166,.07)}
+.stage .code{width:32px;height:32px;border-radius:9px;background:var(--panel2);border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--teal)}
+.stage.on .code{background:var(--teal);color:#ffffff;border-color:var(--teal)}
+.stage .nm{font-size:13.5px;font-weight:650;line-height:1.35}
+.stage .one{font-size:12px;color:var(--dim);margin-top:2px}
+.conn{height:14px;margin-left:35px;border-left:2px dashed var(--line2)}
+.detail h4{margin:16px 0 6px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--teal);font-weight:700}
+.detail ul{margin:0;padding-left:17px}
+.detail li{font-size:12.8px;color:var(--mid);margin-bottom:5px;line-height:1.55}
+.detail li b{color:var(--ink)}
+.detail .steps li{color:var(--ink)}
+.mono-out{background:#0f1a16;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:11.5px;color:#9fd8c9;overflow-x:auto}
+.pillrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pillrow .mini{font-size:11px;color:var(--mid);border:1px solid var(--line2);border-radius:7px;padding:4px 9px}
+.pillrow .mini b{color:var(--teal)}
+
+/* ============================ visual polish ============================ */
+:root{
+  --bg:#070d0b; --panel:#0f1a16; --panel2:#14211c;
+  --line:#1d2b25; --line2:#2b3f36;
+  --ink:#eaf2ee; --mid:#a8bdb5; --dim:#7b918a;
+  --teal:#3ad4b4; --teal-d:#1a8f78;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:
+    radial-gradient(1100px 560px at 12% -12%, rgba(58,212,180,.10), transparent 62%),
+    radial-gradient(900px 520px at 96% -6%, rgba(90,169,230,.055), transparent 58%),
+    var(--bg);
+  background-attachment:fixed;
+  letter-spacing:-0.005em;
+}
+.mono,.det .cls{font-family:"JetBrains Mono","SF Mono",ui-monospace,Menlo,Consolas,monospace}
+::selection{background:rgba(58,212,180,.28);color:#fff}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#22322b;border-radius:8px;border:3px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:#2e453b}
+
+.wrap{max-width:1280px;padding:0 24px 76px}
+header{background:linear-gradient(180deg,rgba(15,26,22,.94),rgba(7,13,11,.86));
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.hdr{max-width:1280px;padding:15px 24px;gap:16px}
+.logo{font-size:16.5px;letter-spacing:-.015em;gap:11px}
+.mark{display:flex;filter:drop-shadow(0 4px 12px rgba(58,212,180,.30))}
+.tag{border-color:var(--line2);color:var(--mid);font-size:11.5px;padding:4px 12px;background:rgba(255,255,255,.02)}
+nav{gap:4px;margin-top:2px}
+nav button{padding:8px 15px;border-radius:10px;font-size:13.5px;font-weight:500;
+  border:1px solid transparent;transition:all .22s cubic-bezier(.4,0,.2,1)}
+nav button:hover{background:rgba(255,255,255,.035);color:var(--ink)}
+nav button.on{background:linear-gradient(180deg,rgba(58,212,180,.20),rgba(58,212,180,.07));
+  border-color:rgba(58,212,180,.34);color:#82f0d7;box-shadow:0 8px 20px -14px rgba(58,212,180,.95)}
+.lang{border-color:var(--line2);border-radius:9px}
+.lang button{padding:6px 13px;transition:all .2s}
+.lang button.on{background:linear-gradient(180deg,#48ddbd,#20b195);color:#ffffff}
+
+.page{padding-top:30px}
+h2.t{position:relative;padding-left:17px;font-size:23px;font-weight:700;letter-spacing:-.018em}
+h2.t:before{content:'';position:absolute;left:0;top:.24em;width:4px;height:1em;border-radius:3px;
+  background:linear-gradient(180deg,var(--teal),rgba(58,212,180,.18))}
+
+.grid{gap:16px}
+.card{
+  background:linear-gradient(180deg,rgba(255,255,255,.030),rgba(255,255,255,0) 42%),var(--panel);
+  border:1px solid var(--line);border-radius:15px;padding:19px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 24px 48px -36px rgba(0,0,0,.95);
+  transition:border-color .28s ease}
+.card:hover{border-color:var(--line2)}
+.card h3{font-size:11.5px;letter-spacing:.1em;color:var(--dim);font-weight:600}
+.card .hint{font-size:12.5px;line-height:1.6;color:var(--dim)}
+
+.tile .val{font-size:36px;letter-spacing:-.03em;margin:9px 0 4px}
+.tile .cap{font-size:12.5px;color:var(--mid)}
+.pill{padding:3.5px 10px;font-size:10.5px;letter-spacing:.07em}
+
+.layer{border-radius:11px;padding:11px 13px;
+  background:linear-gradient(180deg,rgba(255,255,255,.022),transparent),var(--panel2);
+  transition:border-color .2s}
+.layer:hover{border-color:var(--line2)}
+.st{padding:3.5px 9px;border-radius:7px}
+
+button.act{background:linear-gradient(180deg,#4ce0c0,#1eb394);border-radius:10px;padding:10px 17px;
+  font-weight:650;box-shadow:0 10px 24px -14px rgba(58,212,180,.95);transition:filter .2s,transform .12s}
+button.act:hover{filter:brightness(1.08);background:linear-gradient(180deg,#4ce0c0,#1eb394)}
+button.act:active{transform:translateY(1px)}
+button.ghost{border-radius:10px;padding:10px 16px;transition:all .2s;background:rgba(255,255,255,.018)}
+button.ghost:hover{background:rgba(255,255,255,.05);color:var(--ink);border-color:var(--line2)}
+
+table.d th{font-size:10.5px;letter-spacing:.09em;padding:9px 11px;border-bottom:1px solid var(--line2)}
+table.d td{padding:11px 11px;border-bottom:1px solid rgba(255,255,255,.045)}
+table.d tbody tr{transition:background .18s}
+table.d tbody tr:hover td{background:rgba(255,255,255,.03)}
+
+.note{border-left-width:2px;border-color:var(--teal-d);padding-left:13px;font-size:12px;line-height:1.6}
+.capk{font-size:10.5px;letter-spacing:.1em;color:var(--dim)}
+.recbox{border-radius:11px;padding:13px 15px;
+  background:linear-gradient(180deg,rgba(58,212,180,.12),rgba(58,212,180,.05));
+  border-color:rgba(58,212,180,.30)}
+.warnbox{border-radius:11px;padding:13px 15px;line-height:1.6}
+.scnbox{border-radius:11px;padding:12px 15px;line-height:1.6}
+
+.camwrap{border-radius:13px;border:1px solid var(--line2);
+  box-shadow:0 0 0 1px rgba(0,0,0,.55), 0 30px 60px -40px #000, inset 0 0 60px rgba(0,0,0,.35)}
+.banner{border-radius:9px;padding:8px 14px;font-size:12.5px;box-shadow:0 10px 26px -16px rgba(0,0,0,.9)}
+.camctl{margin-top:13px;gap:8px}
+.camctl button{padding:7px 14px;font-size:12px;transition:all .2s;background:rgba(255,255,255,.022)}
+.camctl button.on{background:linear-gradient(180deg,rgba(58,212,180,.20),rgba(58,212,180,.08));
+  border-color:rgba(58,212,180,.38);color:#82f0d7}
+
+.ba{border-radius:13px;border-color:var(--line2);box-shadow:0 30px 60px -42px #000}
+.ba .knob{box-shadow:0 6px 18px -6px rgba(0,0,0,.8);background:linear-gradient(180deg,#4ce0c0,#1eb394)}
+.batag{border-radius:7px;padding:5px 11px;box-shadow:0 8px 20px -12px rgba(0,0,0,.9)}
+
+.phase{border-radius:11px;padding:9px 11px;font-size:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.022),transparent),var(--panel2)}
+.phase.act{background:linear-gradient(180deg,rgba(58,212,180,.17),rgba(58,212,180,.06));
+  box-shadow:0 8px 22px -16px rgba(58,212,180,.9)}
+.prog{height:6px;border-radius:4px;background:#0d1714}
+.prog i{background:linear-gradient(90deg,#1eb394,#4ce0c0)}
+.spd{border-radius:9px;border-color:var(--line2)}
+.spd button{padding:7px 11px}
+.spd button.on{background:linear-gradient(180deg,#48ddbd,#20b195);color:#ffffff}
+
+.step .hd{font-size:14px;letter-spacing:-.008em}
+.step .bd{font-size:12.8px;line-height:1.6}
+.msg{border-radius:13px;border-top-left-radius:4px;padding:12px 14px;line-height:1.6}
+.phone{border-radius:24px;padding:14px;border-color:var(--line2);
+  box-shadow:0 30px 60px -40px #000, inset 0 1px 0 rgba(255,255,255,.05)}
+.det{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.det .bar{height:7px;border-radius:4px}
+.det .lay{border-radius:6px;padding:2.5px 7px}
+input[type=range]::-webkit-slider-thumb{box-shadow:0 0 0 1px var(--teal), 0 4px 12px -3px rgba(58,212,180,.8)}
+.chk{border-radius:10px;transition:border-color .2s;
+  background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--panel2)}
+.chk:hover{border-color:var(--line2)}
+select{border-radius:10px;padding:9px 12px}
+.stick{position:sticky;top:98px;align-self:start}
+footer{margin-top:52px;padding-top:20px;font-size:11.5px;line-height:1.7;color:#66807a;
+  border-top:1px solid var(--line)}
+</style>
+
+<style id="pa-light">
+/* ============ LIGHT THEME OVERRIDE ============ */
+:root{
+  --bg:#eef3fb; --panel:#ffffff; --panel2:#f6f9fe;
+  --line:#e4eaf3; --line2:#cbd8e8;
+  --ink:#0b0b0b; --mid:#52514e; --dim:#7c8798;
+  --teal:#0a8a66; --teal-d:#0a7a5c;
+  --amber:#c07f00; --red:#d03b3b; --green:#0ca30c; --blue:#2a78d6;
+  --shadow:0 1px 2px rgba(16,32,64,.06), 0 8px 24px rgba(16,32,64,.07);
+}
+body{
+  background:
+    radial-gradient(1100px 540px at 10% -10%, #d9e8ff 0%, rgba(217,232,255,0) 60%),
+    radial-gradient(900px 480px at 92% 0%, #dcffe9 0%, rgba(220,255,233,0) 62%),
+    var(--bg);
+  background-attachment:fixed; color:var(--ink);
+}
+::selection{background:rgba(42,120,214,.20);color:var(--ink)}
+::-webkit-scrollbar-thumb{background:#c8d4e6;border-radius:8px;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:#aebfd6;background-clip:padding-box}
+
+header{background:rgba(255,255,255,.86);border-bottom:1px solid var(--line);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.logo span{color:var(--teal)}
+.mark{filter:drop-shadow(0 4px 12px rgba(10,138,102,.28))}
+.tag{color:var(--mid);border-color:var(--line2);background:var(--panel2)}
+nav button{color:var(--mid)}
+nav button:hover{background:rgba(11,11,11,.045);color:var(--ink)}
+nav button.on{background:linear-gradient(180deg,rgba(10,138,102,.15),rgba(10,138,102,.06));
+  border-color:rgba(10,138,102,.38);color:var(--teal);box-shadow:0 8px 18px -14px rgba(10,138,102,.9)}
+.lang{border-color:var(--line2);background:var(--panel2)}
+.lang button{color:var(--dim)}
+.lang button.on{background:#0b0b0b;color:#fff}
+
+.card{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow)}
+.card:hover{border-color:var(--line2)}
+.card h3{color:var(--dim)}
+.card .hint{color:var(--dim)}
+.tile .val{color:var(--ink)}
+.tile .cap{color:var(--mid)}
+
+.p-hi{background:#fdeeea;color:#a52a2a;border:1px solid rgba(208,59,59,.35)}
+.p-md{background:#fdf3dd;color:#8a5c00;border:1px solid rgba(192,127,0,.35)}
+.p-lo{background:#e9f8ea;color:#0a7d0a;border:1px solid rgba(12,163,12,.35)}
+.p-n{background:#eaf2fd;color:#1c5cab;border:1px solid rgba(42,120,214,.32)}
+
+.layer{background:var(--panel2);border-color:var(--line)}
+.layer:hover{border-color:var(--line2)}
+.layer .id{color:var(--dim)}
+.layer .nm small{color:var(--dim)}
+.st.ok{background:#e9f8ea;color:#0a7d0a}
+.st.bad{background:#fdeeea;color:#a52a2a}
+.st.unk{background:#eef1f6;color:var(--mid)}
+
+label.ctl .lbl{color:var(--mid)}
+label.ctl .lbl b{color:var(--ink)}
+input[type=range]{background:var(--line2)}
+input[type=range]::-webkit-slider-thumb{background:var(--teal);border:3px solid #fff;
+  box-shadow:0 0 0 1px var(--teal), 0 3px 10px -3px rgba(10,138,102,.7)}
+input[type=range]::-moz-range-thumb{background:var(--teal);border:3px solid #fff}
+select{background:var(--panel2);color:var(--ink);border-color:var(--line2)}
+.chk{background:var(--panel2);border-color:var(--line)}
+.chk:hover{border-color:var(--line2)}
+.chk .ce{color:var(--dim)}
+
+button.act{background:linear-gradient(180deg,#12a97e,#0a7a5c);color:#fff;
+  box-shadow:0 8px 20px -12px rgba(10,138,102,.9)}
+button.act:hover{background:linear-gradient(180deg,#12a97e,#0a7a5c);filter:brightness(1.07)}
+button.ghost{background:var(--panel2);color:var(--mid);border-color:var(--line2)}
+button.ghost:hover{background:#eef2f9;color:var(--ink);border-color:var(--line2)}
+
+.kv dt{color:var(--dim)}
+.note{color:var(--dim);border-color:var(--teal)}
+.tt{background:#ffffff;border:1px solid var(--line2);color:var(--ink);
+  box-shadow:0 10px 30px -12px rgba(16,32,64,.35)}
+table.d th{color:var(--dim);border-bottom-color:var(--line2)}
+table.d td{border-bottom-color:var(--line)}
+table.d tbody tr:hover td{background:#f2f6fc}
+table.d tr.sel td{background:rgba(10,138,102,.09)}
+
+.phone{background:#0b0b0b;border:0;border-radius:26px;padding:11px;
+  box-shadow:0 20px 44px -22px rgba(16,32,64,.4)}
+.phone .bar{color:#9fb0c4;padding:2px 6px 9px}
+.msg{background:#ffffff;border:1px solid rgba(11,11,11,.08);color:var(--ink);
+  box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.msg .from{color:var(--teal)}
+.msg .btns span{border-color:var(--line2);color:var(--mid)}
+.msg .btns span.pri{border-color:var(--teal);color:var(--teal);background:rgba(10,138,102,.08)}
+.msg.me{background:#e8f2ff;border-color:rgba(42,120,214,.28)}
+
+.tl:before{background:var(--line2)}
+.step:before{background:#fff;border-color:var(--line2)}
+.step.on:before{border-color:var(--teal);background:var(--teal);box-shadow:0 0 0 4px rgba(10,138,102,.16)}
+.step .tm{color:var(--teal)}
+.step .bd{color:var(--mid)}
+.step .tech{color:var(--dim)}
+.step.cur .hd{color:var(--teal)}
+.step.cur:before{box-shadow:0 0 0 6px rgba(10,138,102,.22)}
+
+.plane{background:var(--panel);border-color:var(--line);box-shadow:var(--shadow)}
+.plane .fpt{color:var(--teal);border-color:rgba(10,138,102,.32);background:rgba(10,138,102,.07)}
+.box{background:var(--panel2);border-color:var(--line);color:var(--mid)}
+.arrow{color:var(--line2)}
+footer{color:var(--dim);border-top-color:var(--line)}
+
+.warnbox{background:#fdf6e6;border:1px solid rgba(192,127,0,.30);color:#7a5400}
+.scnbox{background:#fdf6e6;border:1px solid rgba(192,127,0,.28);color:#7a5400}
+.recbox{background:linear-gradient(180deg,#e9f8f2,#f6fdfa);border:1px solid rgba(10,138,102,.30);color:var(--ink)}
+.capk{color:var(--dim)}
+
+.prog{background:var(--line)}
+.prog i{background:linear-gradient(90deg,#12a97e,#0a7a5c)}
+.phase{background:var(--panel2);border-color:var(--line);color:var(--dim)}
+.phase.done{color:var(--mid);border-color:var(--line2)}
+.phase.act{border-color:var(--teal);background:rgba(10,138,102,.11);color:var(--teal)}
+.spd{border-color:var(--line2);background:var(--panel2)}
+.spd button{color:var(--mid)}
+.spd button.on{background:#0b0b0b;color:#fff}
+
+.camwrap{border:1px solid var(--line2);background:#cfe0f0;
+  box-shadow:0 14px 34px -22px rgba(16,32,64,.5)}
+.camctl button{background:var(--panel2);border-color:var(--line2);color:var(--mid)}
+.camctl button:hover{color:var(--ink);border-color:var(--teal)}
+.camctl button.on{background:rgba(10,138,102,.12);border-color:var(--teal);color:var(--teal)}
+.det{border-bottom-color:var(--line)}
+.det .bar{background:var(--line)}
+.det .cf{color:var(--mid)}
+.det .lay{border-color:var(--line2);color:var(--dim)}
+.ba{border-color:var(--line2);background:#cfe0f0;box-shadow:0 14px 34px -22px rgba(16,32,64,.5)}
+.ba .divider{background:#fff;box-shadow:0 0 0 1px rgba(11,11,11,.25)}
+.ba .knob{background:#fff;color:var(--ink);box-shadow:0 4px 14px -4px rgba(0,0,0,.45)}
+
+.stage{background:var(--panel);border-color:var(--line);box-shadow:var(--shadow)}
+.stage:hover{border-color:var(--line2);background:var(--panel2)}
+.stage.on{border-color:var(--teal);background:rgba(10,138,102,.07)}
+.stage .code{background:var(--panel2);border-color:var(--line2);color:var(--teal)}
+.stage.on .code{background:var(--teal);color:#fff;border-color:var(--teal)}
+.stage .one{color:var(--dim)}
+.conn{border-left-color:var(--line2)}
+.detail h4{color:var(--teal)}
+.detail li{color:var(--mid)}
+.detail li b{color:var(--ink)}
+.mono-out{background:#f3f7fd;border-color:var(--line);color:#0a5f4b}
+.pillrow .mini{color:var(--mid);border-color:var(--line2);background:var(--panel2)}
+.pillrow .mini b{color:var(--teal)}
+h2.t:before{background:linear-gradient(180deg,var(--teal),rgba(10,138,102,.22))}
+p.sub{color:var(--mid)}
+</style>
+
+<style id="pa-zalo">
+/* ============ CUSTOMER / ZALO TAB ============ */
+#zalo .znwrap{display:grid;grid-template-columns:1fr 396px 1fr;gap:16px;align-items:start}
+@media(max-width:1100px){#zalo .znwrap{grid-template-columns:1fr}}
+#zalo .zntool{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.znwho{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);
+  padding:6px 14px 6px 6px;border-radius:999px;font-size:13px;font-weight:650;color:var(--mid);box-shadow:var(--shadow)}
+.znwho .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(140deg,#eda100,#eb6834);
+  color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800}
+.znprog{flex:1;min-width:120px;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.znprog i{display:block;height:100%;width:0;border-radius:3px;
+  background:linear-gradient(90deg,#2a78d6,#1baf7a,#eda100);transition:width .1s linear}
+
+/* left: the day */
+.znday{padding:4px 2px 2px}
+.znmo{display:flex;gap:12px;padding:7px 0;opacity:.4;transition:opacity .4s,transform .4s}
+.znmo.on{opacity:1}
+.znmo.act{transform:translateX(4px)}
+.znmo .rl{position:relative;flex:none;width:22px;display:flex;justify-content:center}
+.znmo .rl:before{content:"";position:absolute;top:22px;bottom:-18px;width:2px;background:var(--line)}
+.znmo:last-child .rl:before{display:none}
+.znmo .bul{width:22px;height:22px;border-radius:50%;background:var(--panel2);border:2px solid var(--line);
+  display:grid;place-items:center;font-size:10px;font-weight:800;color:var(--dim);z-index:1;transition:all .35s}
+.znmo.on .bul{background:#2a78d6;border-color:#2a78d6;color:#fff}
+.znmo.act .bul{box-shadow:0 0 0 5px rgba(42,120,214,.18)}
+.znmo.bad.on .bul{background:#d03b3b;border-color:#d03b3b}
+.znmo.good.on .bul{background:#0ca30c;border-color:#0ca30c}
+.znmo .tt2{font-size:11px;font-weight:750;color:var(--dim);letter-spacing:.03em}
+.znmo .hh{font-size:13.5px;font-weight:750;line-height:1.35;margin-top:1px;color:var(--ink)}
+.znmo .ss{font-size:11.5px;color:var(--mid);line-height:1.45;margin-top:3px}
+.zncon{margin-top:14px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.zncon div{padding:9px 12px;font-size:12px;line-height:1.5;color:var(--mid)}
+.zncon .a{background:#fff4f1;border-bottom:1px solid var(--line)}
+.zncon .b{background:#eefaee}
+.zncon b{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+.zncon .a b{color:#a52a2a}
+.zncon .b b{color:#0a7d0a}
+
+/* centre: phone */
+.znphonewrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.znphone{width:100%;max-width:396px;background:#0b0b0b;border-radius:34px;padding:11px;
+  box-shadow:0 20px 50px -20px rgba(16,32,64,.4)}
+.znnotch{height:20px;display:flex;justify-content:center;align-items:flex-start}
+.znnotch i{width:96px;height:20px;background:#0b0b0b;border-radius:0 0 12px 12px;display:block;margin-top:-11px}
+.znscr{background:#e8f0fa;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;height:590px}
+.znhead{background:#0068ff;color:#fff;padding:11px 14px;display:flex;align-items:center;gap:10px;flex:none}
+.znhead .za{width:32px;height:32px;border-radius:10px;background:#fff;color:#0068ff;display:grid;place-items:center;font-weight:800;font-size:15px}
+.znhead b{display:block;font-size:14px;font-weight:750;line-height:1.2}
+.znhead span{display:block;font-size:11px;opacity:.85;margin-top:1px}
+.znchat{flex:1;overflow:auto;padding:12px 12px 16px;display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
+.znchat::-webkit-scrollbar{width:5px}
+.znchat::-webkit-scrollbar-thumb{background:#c3d3e6;border-radius:3px;border:0}
+.zndv{align-self:center;background:rgba(11,11,11,.07);color:#52514e;font-size:10.5px;font-weight:700;
+  padding:3px 11px;border-radius:999px;margin:5px 0;animation:znin .3s}
+.znmsg{max-width:88%;animation:znin .35s cubic-bezier(.2,.7,.3,1)}
+@keyframes znin{from{opacity:0;transform:translateY(10px)}}
+.znmsg.them{align-self:flex-start}
+.znmsg.me{align-self:flex-end}
+.znbub{background:#fff;border-radius:5px 15px 15px 15px;padding:11px 13px;font-size:13px;line-height:1.55;
+  box-shadow:0 1px 3px rgba(0,0,0,.09);color:#0b0b0b}
+.znmsg.me .znbub{background:#0068ff;color:#fff;border-radius:15px 5px 15px 15px}
+.znbub .ttl{font-weight:800;margin-bottom:5px;font-size:13px}
+.znbub.adv{background:#fffaef}.znbub.adv .ttl{color:#b06a00}
+.znbub.war{background:#fff4f1}.znbub.war .ttl{color:#d03b3b}
+.znbub.coach .ttl{color:#4a3aa7}
+.znbub.ok{background:#effaef}.znbub.ok .ttl{color:#0ca30c}
+.znbub ul{margin:7px 0 0;padding-left:17px}
+.znbub li{margin:4px 0}
+.zncta{margin-top:10px;background:#0068ff;color:#fff;text-align:center;padding:8px;border-radius:9px;font-weight:750;font-size:12.5px}
+.zncta.g{background:#0ca30c}
+.znchk{display:flex;gap:8px;align-items:flex-start;margin:7px 0;padding:8px 9px;background:rgba(74,58,167,.06);border-radius:9px}
+.znchk .bx{width:17px;height:17px;border-radius:5px;border:2px solid #b9b2dd;flex:none;margin-top:1px;
+  display:grid;place-items:center;font-size:11px;color:#fff;font-weight:800;transition:all .3s}
+.znchk.done .bx{background:#0ca30c;border-color:#0ca30c}
+.znchk .cw{font-size:12.5px;line-height:1.45}
+.znchk .cw em{display:block;font-style:normal;color:#7c8798;font-size:11.5px;margin-top:2px}
+.znmini{font-size:10.5px;color:#7c8798;margin-top:5px;font-weight:600}
+.znmsg.me .znmini{color:rgba(255,255,255,.75);text-align:right}
+.zntyping{align-self:flex-start;background:#fff;border-radius:5px 15px 15px 15px;padding:11px 15px;
+  box-shadow:0 1px 3px rgba(0,0,0,.09);display:none}
+.zntyping.on{display:block;animation:znin .3s}
+.zntyping i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#b6c3d3;margin:0 2px;animation:znbob 1.2s infinite}
+.zntyping i:nth-child(2){animation-delay:.2s}.zntyping i:nth-child(3){animation-delay:.4s}
+@keyframes znbob{40%{transform:translateY(-5px);background:#8fa3ba}}
+.zncap{font-size:12px;color:var(--dim);text-align:center;line-height:1.5;max-width:396px}
+
+/* right: value */
+.znvg{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.znvt{border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:var(--panel2);transition:all .4s}
+.znvt .lab{font-size:10.5px;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);line-height:1.35}
+.znvt .val{font-size:23px;font-weight:800;letter-spacing:-.03em;margin-top:4px;line-height:1.05;
+  font-variant-numeric:tabular-nums;color:var(--ink)}
+.znvt .val small{font-size:12.5px;font-weight:650;color:var(--dim);letter-spacing:0}
+.znvt.hot{background:linear-gradient(160deg,#effaef,#fff);border-color:rgba(12,163,12,.35)}
+.znvt.hot .val{color:#0a7d0a}
+.znvt.blue{background:linear-gradient(160deg,#eef5ff,#fff);border-color:rgba(42,120,214,.3)}
+.znvt.blue .val{color:#1c5cab}
+.znbars{margin-top:14px}
+.znbar{margin:9px 0}
+.znbar .bl{display:flex;justify-content:space-between;font-size:12px;font-weight:650;color:var(--mid);margin-bottom:5px}
+.znbar .bt{height:11px;border-radius:6px;background:var(--line);overflow:hidden}
+.znbar .bf{height:100%;border-radius:6px;width:0;transition:width 1.1s cubic-bezier(.2,.7,.3,1)}
+.znevid{border:2px dashed var(--line);border-radius:13px;padding:15px;text-align:center;
+  opacity:.32;filter:grayscale(1);transition:all .5s}
+.znevid.on{opacity:1;filter:none;border-color:rgba(12,163,12,.45);background:linear-gradient(160deg,#effaef,#fff)}
+.znevid .ic{font-size:26px}
+.znevid b{display:block;font-size:14px;font-weight:750;margin-top:5px;color:var(--ink)}
+.znevid span{display:block;font-size:12.5px;color:var(--mid);line-height:1.5;margin-top:5px}
+.znevid .pill2{display:inline-block;margin-top:10px;background:#0ca30c;color:#fff;font-size:12px;font-weight:750;padding:7px 15px;border-radius:9px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="logo"><span class="mark"><svg viewBox="0 0 28 28" width="27" height="27">
+      <defs><linearGradient id="lgm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ce8c6"/><stop offset="1" stop-color="#189e82"/></linearGradient></defs>
+      <rect x="1" y="1" width="26" height="26" rx="8.5" fill="url(#lgm)"/>
+      <path d="M6.5 11.2h8.6a2.9 2.9 0 1 0-2.9-2.9" stroke="#04140f" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+      <path d="M6.5 16.4h12.2a2.9 2.9 0 1 1-2.9 2.9" stroke="#04140f" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+      </svg></span>Prevent<span>Air</span> AI</div>
+    <div class="tag" data-k="tag.site"></div>
+    <div class="lang"><button data-l="en" class="on">EN</button><button data-l="vi">VI</button></div>
+    <nav>
+      <button class="on" data-p="ops" data-k="nav.ops"></button>
+      <button data-p="sim" data-k="nav.sim"></button>
+      <button data-p="vision" data-k="nav.vision"></button>
+      <button data-p="replay" data-k="nav.replay"></button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- OPS -->
+<section class="page on" id="ops">
+  <h2 class="t" data-k="ops.title" style="margin-bottom:20px"></h2>
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="card">
+      <h3 id="znValT"></h3>
+      <div class="znvg" style="margin-top:12px">
+        <div class="znvt" id="znvt1"><div class="lab" id="znL1"></div><div class="val" id="znn1"></div></div>
+        <div class="znvt" id="znvt2"><div class="lab" id="znL2"></div><div class="val" id="znn2"></div></div>
+        <div class="znvt" id="znvt3"><div class="lab" id="znL3"></div><div class="val" id="znn3"></div></div>
+        <div class="znvt" id="znvt4"><div class="lab" id="znL4"></div><div class="val" id="znn4"></div></div>
+      </div>
+      <div class="znbars">
+        <div class="znbar"><div class="bl"><span id="znB1"></span><b>3.200.000 &#8363;</b></div>
+          <div class="bt"><div class="bf" id="znbf1" style="background:#2a78d6"></div></div></div>
+        <div class="znbar"><div class="bl"><span id="znB2"></span><b>35.000.000 &#8363;</b></div>
+          <div class="bt"><div class="bf" id="znbf2" style="background:#0ca30c"></div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 id="znEvT"></h3>
+      <div class="znevid" id="znEvid" style="margin-top:12px">
+        <div class="ic">&#128196;</div>
+        <b id="znEv1"></b>
+        <div class="pill2" id="znEv3"></div>
+      </div>
+    </div>
+  </div>
+  <div class="grid g23" style="margin-bottom:14px">
+    <div class="card" style="padding:13px">
+      <div class="camwrap"><div id="camOps"></div><div class="banner bad" id="opsBanner"><span class="bdot"></span><span></span></div></div>
+      <div class="camctl" id="opsCtl"></div>
+    </div>
+    <div class="card"><h3 data-k="ops.live"></h3><p class="hint" data-k="ops.liveh"></p>
+      <div class="layers" id="layers"></div></div>
+  </div>
+  <div class="grid g23" style="margin-bottom:14px">
+    <div class="card"><h3 data-k="ops.fc"></h3><p class="hint" data-k="ops.fch"></p><div id="fc"></div></div>
+    <div class="card"><h3 style="margin-bottom:12px" data-k="ops.ev"></h3>
+      <table class="d"><thead><tr><th data-k="th.time"></th><th data-k="th.layer"></th><th data-k="th.outcome"></th><th data-k="th.conf"></th></tr></thead>
+      <tbody id="evrows"></tbody></table></div>
+  </div>
+  <div class="card" style="border-color:rgba(233,169,63,.35)">
+    <h3 style="color:var(--amber)" data-k="ops.adv"></h3><p class="hint" data-k="ops.advh"></p>
+    <div style="font-size:13.5px;line-height:1.65" data-k="ops.advb"></div>
+    <div style="margin:13px 0 10px;display:flex;flex-direction:column;gap:8px" id="opts"></div>
+    <div class="warnbox" data-k="ops.advw"></div>
+  </div>
+</section>
+
+<!-- SIM -->
+<section class="page" id="sim">
+  <h2 class="t" data-k="sim.title" style="margin-bottom:20px"></h2>
+  <div class="grid g32">
+    <div class="card">
+      <h3 data-k="sim.in"></h3><p class="hint" data-k="sim.inh"></p>
+      <label class="ctl"><div class="lbl"><span data-k="sim.act"></span></div><select id="i_act"></select></label>
+      <label class="ctl"><div class="lbl"><span data-k="sim.area"></span><b id="v_area"></b></div><input type="range" id="i_area" min="200" max="12000" step="100" value="2400"></label>
+      <label class="ctl"><div class="lbl"><span data-k="sim.u"></span><b id="v_u"></b></div><input type="range" id="i_u" min="0" max="14" step="0.1" value="5.2"></label>
+      <label class="ctl"><div class="lbl"><span data-k="sim.dir"></span><b id="v_dir"></b></div><input type="range" id="i_dir" min="0" max="359" step="1" value="68"></label>
+      <label class="chk" style="margin-top:2px"><input type="checkbox" id="i_rain"> <span data-k="sim.rain"></span></label>
+      <h3 style="margin-top:20px" data-k="sim.ctrl"></h3>
+      <div id="ctrls"></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="grid g2" style="gap:18px">
+          <div>
+            <div class="capk" data-k="sim.risk"></div>
+            <div id="o_p" style="font-size:46px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums">—</div>
+            <div id="o_band" style="margin-bottom:16px"></div>
+            <div class="capk" data-k="sim.drvmain"></div>
+            <div id="o_drv" style="margin-bottom:16px"></div>
+            <div class="capk" data-k="sim.rec"></div>
+            <div id="o_rec" class="recbox"></div>
+          </div>
+          <div>
+            <div class="capk" data-k="sim.area2"></div>
+            <div id="plume"></div>
+            <div id="recept" style="font-size:12px;color:var(--mid);margin-top:8px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px;padding:13px">
+        <h3 style="margin-bottom:9px" data-k="cam.pred"></h3>
+        <div class="camwrap"><div id="camSim"></div><div class="banner warn" id="simBanner"><span class="bdot"></span><span></span></div></div>
+      </div>
+      <div class="card">
+        <button class="ghost" id="techBtn" style="width:100%"></button>
+        <div id="techPanel" style="display:none;margin-top:16px">
+          <p class="hint" data-k="sim.techh"></p>
+          <div class="grid g2" style="gap:18px">
+            <div>
+              <label class="ctl"><div class="lbl"><span data-k="sim.rh"></span><b id="v_rh"></b></div><input type="range" id="i_rh" min="30" max="98" step="1" value="62"></label>
+              <label class="ctl"><div class="lbl"><span data-k="sim.blh"></span><b id="v_blh"></b></div><input type="range" id="i_blh" min="200" max="2000" step="20" value="820"></label>
+              <dl class="kv" style="margin-top:6px">
+                <dt data-k="sim.fdpi"></dt><dd id="o_fdpi">—</dd>
+                <dt data-k="sim.ef"></dt><dd id="o_ef">—</dd>
+                <dt data-k="sim.fw"></dt><dd id="o_fw">—</dd>
+                <dt data-k="sim.gm"></dt><dd id="o_gm">—</dd>
+                <dt data-k="sim.hs"></dt><dd id="o_hs">—</dd>
+                <dt data-k="sim.ce"></dt><dd id="o_ce">—</dd>
+                <dt data-k="sim.reach"></dt><dd id="o_reach">—</dd>
+              </dl>
+            </div>
+            <div>
+              <div class="capk" data-k="sim.drv"></div>
+              <div id="drivers"></div>
+              <div class="note" data-k="sim.drvn"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISION -->
+<section class="page" id="vision">
+  <h2 class="t" data-k="vis.title" style="margin-bottom:20px"></h2>
+
+  <div class="card" style="padding:13px;margin-bottom:14px">
+    <div class="camwrap"><div id="camMain"></div><div class="banner bad" id="camBanner"><span class="bdot"></span><span></span></div></div>
+    <div class="camctl" id="camCtl"></div>
+    <div style="display:flex;gap:22px;align-items:flex-start;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:2;min-width:340px"><h3 data-k="cam.det"></h3><p class="hint" data-k="cam.h"></p><div id="detList"></div></div>
+      <div style="flex:1;min-width:220px"><div class="note" style="margin-top:26px" data-k="cam.note"></div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <h3 data-k="cam.ba"></h3><p class="hint" data-k="cam.bah"></p>
+    <div class="ba" id="ba">
+      <div id="baBase"></div>
+      <div class="lay2" id="baTop"></div>
+      <div class="divider" id="baDiv"></div><div class="knob" id="baKnob">‹ ›</div>
+      <span class="batag l" id="baL"></span><span class="batag r" id="baR"></span>
+      <input type="range" id="baRange" min="4" max="96" value="50">
+    </div>
+  </div>
+
+  <div class="grid g23" style="margin-bottom:14px;align-items:start">
+    <div class="card"><h3 data-k="vis.pipe"></h3><div id="pipe" style="margin-top:12px"></div>
+      <div style="display:flex;gap:9px;margin-top:16px">
+        <button class="act" id="runpipe" data-k="vis.run"></button>
+        <button class="ghost" id="resetpipe" data-k="vis.reset"></button></div></div>
+    <div class="card"><h3 data-k="vis.hyst"></h3>
+      <div id="hyst"></div><p class="hint" style="margin:12px 0 0" data-k="vis.hysth"></p></div>
+  </div>
+  <div class="card"><h3 data-k="vis.op"></h3><p class="hint" data-k="vis.oph"></p>
+    <table class="d"><thead><tr><th data-k="th.layer"></th><th data-k="th.phase"></th><th data-k="th.t1"></th><th data-k="th.t2"></th><th data-k="th.prec"></th><th data-k="th.rec"></th></tr></thead>
+    <tbody id="oprows"></tbody></table></div>
+</section>
+
+<!-- REPLAY -->
+<section class="page" id="replay">
+  <h2 class="t" data-k="rp.title" style="margin-bottom:20px"></h2>
+  <div class="grid g23">
+    <div>
+    <div class="card" style="margin-bottom:14px;padding:13px">
+      <h3 style="margin-bottom:9px" data-k="cam.replay"></h3>
+      <div class="camwrap"><div id="camRp"></div><div class="banner warn" id="rpBanner"><span class="bdot"></span><span></span></div></div>
+    </div>
+    <div class="card"><h3 data-k="rp.tl"></h3>
+      <div class="scnbox" data-k="rp.scn"></div>
+      <div style="display:flex;gap:9px;margin:12px 0 10px;align-items:center;flex-wrap:wrap">
+        <button class="act" id="play"></button>
+        <button class="ghost" id="stepBtn"></button>
+        <button class="ghost" id="rewind" data-k="rp.reset"></button>
+        <span class="spd" id="spd"></span>
+        <span id="clock" class="mono" style="margin-left:auto;color:var(--teal);font-size:13px"></span></div>
+      <div class="prog"><i id="progBar"></i></div>
+      <div class="phases" id="phases"></div>
+      <div class="tl" id="tl"></div></div>
+    </div>
+    <div class="stick">
+      <div class="card" style="margin-bottom:14px"><h3 data-k="rp.pm"></h3><p class="hint" data-k="rp.pmh"></p><div id="pm"></div></div>
+      <div class="card"><h3 data-k="rp.zalo"></h3>
+        <div class="zntool" style="margin:10px 0 12px">
+          <div class="znwho"><span class="av">TH</span><span id="znWho"></span></div>
+          <button class="act" id="znPlay"></button>
+          <button class="ghost" id="znReset"></button>
+          <div class="znprog"><i id="znProg"></i></div>
+        </div>
+        <div class="znphonewrap">
+          <div class="znphone">
+            <div class="znnotch"><i></i></div>
+            <div class="znscr">
+              <div class="znhead"><div class="za">Z</div><div><b>PreventAir AI</b><span id="znOa"></span></div></div>
+              <div class="znchat" id="znChat"><div class="zntyping" id="znTyping"><i></i><i></i><i></i></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer data-k="foot"></footer>
+</div>
+<div class="tt" id="tt"></div>
+
+<script>
+/* ============================================================
+   Simulated construction-site CCTV frame, drawn as SVG.
+   No photography is used. Everything here is synthetic and the
+   frame is watermarked as a simulation.
+   ============================================================ */
+const SC = (() => {
+  const W = 960, H = 540;
+  const COL = { ok:'#57d08a', bad:'#ff6a4d', warn:'#f0b13f', scan:'#5ab6ee' };
+
+  function rnd(seed){ let x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+
+  function defs(){
+    return `<defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#9db2c2"/><stop offset="70%" stop-color="#c8cfcb"/><stop offset="100%" stop-color="#dcded4"/></linearGradient>
+      <linearGradient id="grd" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#b3a288"/><stop offset="100%" stop-color="#847a6a"/></linearGradient>
+      <linearGradient id="tarp" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#3fa0d0"/><stop offset="55%" stop-color="#2a7ba4"/><stop offset="100%" stop-color="#3a95c4"/></linearGradient>
+      <linearGradient id="soil" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#b2946b"/><stop offset="100%" stop-color="#7b6446"/></linearGradient>
+      <radialGradient id="vig" cx="50%" cy="48%" r="72%">
+        <stop offset="60%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity="0.30"/></radialGradient>
+      <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+        <rect width="3" height="1.1" fill="#000" opacity="0.08"/></pattern>
+      <pattern id="ribs" width="15" height="70" patternUnits="userSpaceOnUse">
+        <rect width="15" height="70" fill="#2b6ea3"/><rect x="12" width="3" height="70" fill="#22587f"/>
+        <rect x="0" width="2" height="70" fill="#3a83bd"/></pattern>
+      <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3"/>
+        <feColorMatrix type="saturate" values="0"/></filter>
+      <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="9"/></filter>
+      <filter id="soft2" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+    </defs>`;
+  }
+
+  function backdrop(){
+    let s = `<rect width="${W}" height="${H}" fill="url(#sky)"/>`;
+    // distant skyline
+    const b = [[20,108,54],[80,86,40],[126,120,64],[196,96,46],[248,74,72],[326,112,50],[382,92,58],[446,120,44],[496,80,66],[566,104,52],[624,88,60],[690,116,48],[744,96,56],[806,110,62],[874,84,50]];
+    b.forEach(([x,h,w],i)=>{
+      s += `<rect x="${x}" y="${186-h}" width="${w}" height="${h}" fill="#5d6a74" opacity="${0.55+0.2*rnd(i)}"/>`;
+      for(let r=0;r<Math.floor(h/16);r++) for(let c=0;c<Math.floor(w/14);c++)
+        if(rnd(i*40+r*7+c)>0.55) s += `<rect x="${x+6+c*14}" y="${186-h+8+r*16}" width="5" height="6" fill="#c9cfae" opacity="0.35"/>`;
+    });
+    // tower crane
+    s += `<g stroke="#7f8a92" stroke-width="3" fill="none" opacity="0.85">
+      <path d="M812,186 L812,44"/><path d="M700,52 L900,52"/><path d="M812,44 L812,52"/>
+      <path d="M760,52 L812,20 L864,52"/><path d="M756,52 L756,72"/></g>`;
+    // haze band
+    s += `<rect y="120" width="${W}" height="76" fill="#e6e6de" opacity="0.28"/>`;
+    // public road behind the hoarding
+    s += `<rect y="186" width="${W}" height="62" fill="#4b4f52"/>`;
+    s += `<rect y="186" width="${W}" height="4" fill="#5d6165"/>`;
+    for(let x=0;x<W;x+=54) s += `<rect x="${x}" y="216" width="26" height="3" fill="#9aa0a3" opacity="0.5"/>`;
+    // a motorbike on the road
+    s += `<g opacity="0.9"><ellipse cx="196" cy="232" rx="16" ry="4" fill="#000" opacity="0.25"/>
+      <circle cx="186" cy="228" r="6" fill="#26292b"/><circle cx="208" cy="228" r="6" fill="#26292b"/>
+      <path d="M184,226 L198,214 L210,226" stroke="#b8452f" stroke-width="4" fill="none"/>
+      <circle cx="199" cy="207" r="5" fill="#3f4b57"/></g>`;
+    return s;
+  }
+
+  function hoarding(){
+    // blue tin site hoarding, gate opening on the right
+    let s = '';
+    s += `<rect x="0" y="240" width="700" height="68" fill="url(#ribs)"/>`;
+    s += `<rect x="0" y="236" width="700" height="7" fill="#5fa5db"/>`;
+    s += `<rect x="0" y="303" width="700" height="6" fill="#123c58" opacity="0.7"/>`;
+    // open gate leaf, swung inward
+    s += `<g transform="translate(886,236) skewY(9)"><rect x="0" y="0" width="118" height="70" fill="url(#ribs)"/>
+      <rect x="0" y="-4" width="118" height="7" fill="#4f95cb"/></g>`;
+    // gate posts
+    s += `<rect x="694" y="226" width="11" height="90" fill="#1d4a6b"/><rect x="878" y="226" width="11" height="90" fill="#1d4a6b"/>`;
+    // site notice board on the fence
+    s += `<rect x="60" y="252" width="76" height="46" fill="#e8e4d8" opacity="0.9"/>
+      <rect x="66" y="258" width="64" height="6" fill="#c0392b" opacity="0.8"/>
+      ${[0,1,2,3].map(i=>`<rect x="66" y="${270+i*7}" width="${64-i*9}" height="3" fill="#7b8286" opacity="0.7"/>`).join('')}`;
+    return s;
+  }
+
+  function ground(){
+    let s = `<rect y="308" width="${W}" height="${H-308}" fill="url(#grd)"/>`;
+    for(let i=0;i<26;i++){
+      const x = rnd(i*3.1)*W, y = 320 + rnd(i*7.7)*200, r = 12 + rnd(i*5.3)*46;
+      s += `<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="${r.toFixed(0)}" ry="${(r*0.34).toFixed(0)}" fill="#6d6252" opacity="${(0.14+rnd(i)*0.18).toFixed(2)}"/>`;
+    }
+    // tyre tracks curving to the gate
+    s += `<g stroke="#7d7060" stroke-width="7" fill="none" opacity="0.5">
+      <path d="M40,528 C320,486 620,452 780,428"/><path d="M76,540 C360,500 660,468 812,444"/></g>`;
+    return s;
+  }
+
+  function heap(covered){
+    const mound = 'M286,462 C324,344 444,306 536,322 C614,336 652,398 672,462 Z';
+    let s = `<ellipse cx="478" cy="464" rx="206" ry="22" fill="#000" opacity="0.20"/>`;
+    if(covered){
+      s += `<path d="${mound}" fill="url(#tarp)"/>`;
+      s += `<g stroke="#12536f" stroke-width="2.6" fill="none" opacity="0.65">
+        <path d="M328,440 C392,356 486,330 566,360"/><path d="M304,458 C384,390 486,356 616,400"/>
+        <path d="M424,314 C430,366 434,414 436,462"/><path d="M532,330 C538,380 544,418 548,462"/></g>`;
+      s += `<g fill="#e3d6b6" opacity="0.95">${[0,1,2,3,4,5].map(i=>`<ellipse cx="${306+i*70}" cy="${462-Math.abs(i-2.5)*3}" rx="22" ry="9"/>`).join('')}</g>`;
+    } else {
+      s += `<path d="${mound}" fill="url(#soil)"/>`;
+      s += `<path d="M286,462 C332,362 442,318 536,322 C500,362 438,398 400,462 Z" fill="#cbab7c" opacity="0.5"/>`;
+      for(let i=0;i<44;i++){
+        const t = rnd(i*2.7), u = rnd(i*9.1);
+        const x = 312 + t*336, y = 340 + u*112 + Math.abs(t-0.45)*74;
+        s += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(1.2+rnd(i)*2.6).toFixed(1)}" fill="#4a3c2a" opacity="0.5"/>`;
+      }
+    }
+    return s;
+  }
+
+  function excavator(){
+    return `<g transform="translate(44,336) scale(0.82)">
+      <ellipse cx="60" cy="112" rx="72" ry="10" fill="#000" opacity="0.25"/>
+      <rect x="4" y="88" width="116" height="22" rx="10" fill="#2b2f33"/>
+      ${[0,1,2,3,4].map(i=>`<circle cx="${20+i*22}" cy="99" r="7" fill="#4a5157"/>`).join('')}
+      <rect x="24" y="52" width="78" height="40" rx="6" fill="#d3a733"/>
+      <rect x="34" y="58" width="34" height="24" rx="3" fill="#26333d" opacity="0.85"/>
+      <rect x="96" y="60" width="18" height="30" rx="4" fill="#b8912a"/>
+      <g stroke="#d3a733" stroke-width="11" fill="none" stroke-linecap="round">
+        <path d="M100,66 L152,18"/><path d="M152,18 L186,62"/></g>
+      <path d="M180,58 L206,52 L212,80 L184,84 Z" fill="#a8842a"/>
+    </g>`;
+  }
+
+  function truck(sheeted){
+    let s = `<g transform="translate(704,234)">
+      <ellipse cx="96" cy="84" rx="96" ry="9" fill="#000" opacity="0.3"/>
+      <rect x="8" y="26" width="104" height="46" rx="4" fill="#3f4a55"/>
+      <rect x="112" y="18" width="66" height="54" rx="5" fill="#7a4230"/>
+      <rect x="122" y="26" width="42" height="22" rx="3" fill="#9fc3d6" opacity="0.85"/>
+      <circle cx="40" cy="76" r="13" fill="#1e2226"/><circle cx="40" cy="76" r="5" fill="#4b5157"/>
+      <circle cx="92" cy="76" r="13" fill="#1e2226"/><circle cx="92" cy="76" r="5" fill="#4b5157"/>
+      <circle cx="156" cy="76" r="13" fill="#1e2226"/><circle cx="156" cy="76" r="5" fill="#4b5157"/>`;
+    if(sheeted){
+      s += `<path d="M10,26 C40,10 84,10 110,26 Z" fill="#1d5f80"/>
+            <path d="M10,26 C40,10 84,10 110,26" stroke="#0f4560" stroke-width="2" fill="none"/>`;
+    } else {
+      s += `<path d="M12,26 C36,8 78,6 108,26 Z" fill="#6d5a44"/>
+            ${[0,1,2,3,4,5,6].map(i=>`<circle cx="${22+i*13}" cy="${20+rnd(i)*8}" r="${2+rnd(i*3)*2}" fill="#4a3c2a" opacity="0.7"/>`).join('')}`;
+    }
+    return s + `</g>`;
+  }
+
+  function washbay(){
+    return `<g>
+      <rect x="700" y="430" width="238" height="76" rx="6" fill="#2a3439"/>
+      <rect x="710" y="440" width="218" height="56" rx="4" fill="#4b7f90" opacity="0.92"/>
+      ${[0,1,2,3,4,5].map(i=>`<ellipse cx="${736+i*36}" cy="${458+ (i%2)*20}" rx="17" ry="5" fill="#9ccddb" opacity="0.4"/>`).join('')}
+      <rect x="700" y="426" width="238" height="6" fill="#55666d"/>
+      <g stroke="#9aa6ab" stroke-width="4"><path d="M708,430 L708,392"/><path d="M930,430 L930,392"/></g>
+      <path d="M708,394 L930,394" stroke="#9aa6ab" stroke-width="4"/>
+    </g>`;
+  }
+
+  function misters(on){
+    let s = `<g stroke="#8f9aa1" stroke-width="4">
+      <path d="M250,314 L250,246"/><path d="M640,314 L640,246"/></g>`;
+    if(on){
+      [250,640].forEach((x,k)=>{
+        s += `<g filter="url(#soft2)" opacity="0.55">`;
+        for(let i=0;i<16;i++){
+          const a = -0.35 + rnd(i+k*9)*0.7, r = 40 + rnd(i*3+k)*86;
+          s += `<circle cx="${(x+Math.sin(a)*r).toFixed(0)}" cy="${(250+Math.abs(Math.cos(a))*r*0.55).toFixed(0)}" r="${(5+rnd(i*7)*9).toFixed(0)}" fill="#eef4f6"/>`;
+        }
+        s += `</g>`;
+        s += `<ellipse cx="${x}" cy="${372}" rx="86" ry="22" fill="#2f3b36" opacity="0.30"/>`;
+      });
+    }
+    return s;
+  }
+
+  function workers(){
+    return `<g>
+      ${[[196,486],[236,474]].map(([x,y])=>`<g transform="translate(${x},${y})">
+        <ellipse cx="0" cy="30" rx="12" ry="4" fill="#000" opacity="0.3"/>
+        <rect x="-7" y="0" width="14" height="20" rx="4" fill="#e8631f"/>
+        <rect x="-6" y="19" width="5" height="12" fill="#2f3a44"/><rect x="1" y="19" width="5" height="12" fill="#2f3a44"/>
+        <circle cx="0" cy="-6" r="6" fill="#d9b48c"/><path d="M-7,-8 A7,7 0 0 1 7,-8 Z" fill="#f0c020"/></g>`).join('')}
+    </g>`;
+  }
+
+  function dust(level, drift){
+    if(level <= 0.02) return '';
+    const n = Math.round(5 + level*9);
+    let s = `<g filter="url(#soft)">`;
+    for(let i=0;i<n;i++){
+      const t = i/(n-1||1);
+      const x = 452 + t*270*(0.5+drift) ;
+      const y = 392 - t*150 + (rnd(i*8.2)-0.5)*40;
+      const r = 34 + t*62 + rnd(i*2.2)*20;
+      s += `<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="${r.toFixed(0)}" ry="${(r*0.58).toFixed(0)}" fill="#e5d8bd" opacity="${(0.08+level*0.20).toFixed(2)}"/>`;
+    }
+    s += `</g>`;
+    for(let i=0;i<Math.round(level*34);i++){
+      const t = rnd(i*1.7);
+      const x = 440 + t*300*(0.5+drift), y = 372 - t*120 + rnd(i*5.5)*80;
+      s += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(0.7+rnd(i)*1.6).toFixed(1)}" fill="#efe6d2" opacity="${(0.2+level*0.34).toFixed(2)}"/>`;
+    }
+    return s;
+  }
+
+  function boxes(list, lang){
+    if(!list || !list.length) return '';
+    return list.map(b=>{
+      const c = COL[b.state] || COL.scan, L = 20;
+      const dash = b.state === 'scan' ? ' stroke-dasharray="7 6"' : '';
+      const label = `${b.label} ${b.conf!=null ? b.conf.toFixed(2) : ''}`.trim();
+      const lw = label.length * 6.9 + 18;
+      return `<g>
+        <rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="${c}" opacity="0.07"/>
+        <rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="none" stroke="${c}" stroke-width="1.4" opacity="0.55"${dash}/>
+        <g stroke="${c}" stroke-width="3.4" fill="none" stroke-linecap="square">
+          <path d="M${b.x},${b.y+L} L${b.x},${b.y} L${b.x+L},${b.y}"/>
+          <path d="M${b.x+b.w-L},${b.y} L${b.x+b.w},${b.y} L${b.x+b.w},${b.y+L}"/>
+          <path d="M${b.x+b.w},${b.y+b.h-L} L${b.x+b.w},${b.y+b.h} L${b.x+b.w-L},${b.y+b.h}"/>
+          <path d="M${b.x+L},${b.y+b.h} L${b.x},${b.y+b.h} L${b.x},${b.y+b.h-L}"/></g>
+        <rect x="${b.x}" y="${b.below ? b.y+b.h+3 : b.y-23}" width="${lw}" height="21" rx="3" fill="${c}"/>
+        <text x="${b.x+9}" y="${b.below ? b.y+b.h+18 : b.y-8}" font-size="12.5" font-weight="700" fill="#08130f" font-family="Inter, Arial">${label}</text>
+      </g>`;
+    }).join('');
+  }
+
+  function hud(o, lang){
+    const sim = lang==='vi' ? 'HÌNH MÔ PHỎNG' : 'SIMULATED VIEW';
+    const smp = lang==='vi' ? '1920×1080 · lấy mẫu 1 fps' : '1920×1080 · sampled at 1 fps';
+    return `<g font-family="'SF Mono', Consolas, monospace">
+      <rect x="0" y="0" width="${W}" height="${H}" fill="url(#scan)"/>
+      <rect x="0" y="0" width="${W}" height="${H}" filter="url(#grain)" opacity="0.055"/>
+      <rect x="0" y="0" width="${W}" height="${H}" fill="url(#vig)"/>
+      <rect x="0" y="0" width="${W}" height="34" fill="#000" opacity="0.42"/>
+      <rect x="0" y="${H-30}" width="${W}" height="30" fill="#000" opacity="0.42"/>
+      <circle cx="22" cy="17" r="6" fill="#e2624a"><animate attributeName="opacity" values="1;0.15;1" dur="1.6s" repeatCount="indefinite"/></circle>
+      <text x="38" y="22" fill="#e9eeec" font-size="14" font-weight="700">${o.cam}</text>
+      <text x="${W-16}" y="22" fill="#e9eeec" font-size="14" text-anchor="end">2026-08-12  ${o.time}</text>
+      <text x="16" y="${H-10}" fill="#c9d3cf" font-size="12">${smp}</text>
+      <text x="${W-16}" y="${H-10}" fill="#c9d3cf" font-size="12" text-anchor="end" letter-spacing="1.5">${sim}</text>
+    </g>`;
+  }
+
+  let UID = 0;
+  function frame(o, lang){
+    o = Object.assign({covered:false, spraying:false, sheeted:true, dust:0, drift:0.4,
+                       boxes:[], time:'14:22:07', cam:'CAM-02 · NORTH YARD'}, o||{});
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;border-radius:10px">
+      ${defs()}${backdrop()}${hoarding()}${truck(o.sheeted)}${ground()}${washbay()}
+      ${heap(o.covered)}${excavator()}${misters(o.spraying)}${workers()}
+      ${dust(o.dust, o.drift)}${hud(o, lang)}${boxes(o.boxes, lang)}
+    </svg>`;
+    // unique paint-server ids per frame: several frames coexist on one page and
+    // a reference into a display:none subtree does not resolve.
+    const u = '_f' + (++UID);
+    ['soft2','sky','grd','tarp','soil','vig','scan','ribs','grain','soft'].forEach(id=>{
+      svg = svg.split('id="'+id+'"').join('id="'+id+u+'"').split('url(#'+id+')').join('url(#'+id+u+')');
+    });
+    return svg;
+  }
+
+  // canonical detection sets -------------------------------------------------
+  const BOX = {
+    heap:      {x:278, y:300, w:402, h:170},
+    fence:     {x:14,  y:228, w:676, h:86},
+    truck:     {x:700, y:226, w:198, h:98},
+    wash:      {x:692, y:388, w:252, h:124},
+    dustzone:  {x:432, y:236, w:396, h:180},
+    mist:      {x:572, y:230, w:152, h:172},
+  };
+  return { frame, BOX, COL, W, H };
+})();
+
+const I18N = {"tag.proto":["Interactive technical prototype · v2.0","Nguyên mẫu kỹ thuật tương tác · v2.0"],"tag.site":["Site HN-CG-0412 · Cầu Giấy","Công trường HN-CG-0412 · Cầu Giấy"],"nav.ops":["Site operations","Vận hành công trường"],"nav.map":["System map","Sơ đồ hoạt động"],"nav.sim":["Risk model","Mô hình rủi ro"],"nav.vision":["Vision engine","Bộ nhận diện hình ảnh"],"nav.district":["District console","Bảng điều khiển quận"],"nav.replay":["Incident replay","Tái hiện sự cố"],"nav.arch":["Architecture","Kiến trúc"],"foot":["PreventAir AI · interactive technical prototype for the UQ–FTU Hackathon 2026. All figures are design estimates or literature-anchored planning values, documented in the accompanying technical whitepaper. This prototype is a conceptual mockup; it contains no live data feeds.","PreventAir AI · nguyên mẫu kỹ thuật tương tác cho UQ–FTU Hackathon 2026. Mọi con số là ước tính thiết kế hoặc giá trị quy hoạch có nguồn từ tài liệu khoa học, đều được ghi rõ trong whitepaper kỹ thuật đi kèm. Đây là mô hình khái niệm, không kết nối dữ liệu thật."],"ops.title":["Contractor operations view","Màn hình vận hành của nhà thầu"],"ops.sub":["What the site manager sees at 06:00. One camera, five control layers, one costed advisory.","Những gì chỉ huy công trường thấy lúc 06:00. Một camera, năm lớp kiểm soát, một khuyến nghị có định giá."],"ops.k1":["Peak risk · next 48 h","Rủi ro cao nhất · 48 giờ tới"],"ops.k1c":["Tomorrow 13:00–17:00 ·","Ngày mai 13:00–17:00 ·"],"ops.k1n":["M1 probability of a fence-line exceedance. 80% interval 0.58–0.82.","Xác suất vượt ngưỡng tại hàng rào do M1 tính. Khoảng tin cậy 80%: 0,58–0,82."],"ops.k2":["Compliance score · 30 d","Điểm tuân thủ · 30 ngày"],"ops.k2c":["Coverage 94% · L3 spraying is the drag","Độ phủ quan sát 94% · L3 phun nước là điểm kéo điểm xuống"],"ops.k2n":["Time-weighted across the five control layers, normalised by observed coverage.","Trung bình có trọng số theo thời gian trên năm lớp kiểm soát, chuẩn hoá theo độ phủ quan sát được."],"ops.k3":["Exposure avoided · MTD","Rủi ro phạt tránh được · từ đầu tháng"],"ops.k3c":["3 advisories accepted · 0 findings escalated","3 khuyến nghị được chấp nhận · 0 vi phạm bị leo thang"],"ops.k3n":["Estimate, not a legal figure.","Là ước tính, không phải con số pháp lý."],"ops.fc":["M1 · 48-hour dispersion risk forecast","M1 · Dự báo rủi ro phát tán bụi 48 giờ"],"ops.fch":["Hover a bar to see the main risk drivers for that hour.","Di chuột lên một cột để xem các yếu tố rủi ro chính của giờ đó."],"ops.live":["Live control state · M2","Trạng thái kiểm soát thời gian thực · M2"],"ops.liveh":["Per-layer estimate from three site cameras, 5-minute confirmation window.","Ước lượng theo từng lớp từ ba camera công trường, cửa sổ xác nhận 5 phút."],"ops.liven":["Confidence below 0.60 abstains and routes to human review rather than raising a finding.","Độ tin cậy dưới 0,60 thì hệ thống từ chối kết luận và chuyển cho người kiểm duyệt, không lập vi phạm."],"ops.adv":["Advisory from ADVISOR agent · 06:04","Khuyến nghị từ tác tử ADVISOR · 06:04"],"ops.advh":["Lead time 30 h 56 m · delivered by Zalo ZNS template PA_RISK_ADVISORY_V3","Báo trước 30 giờ 56 phút · gửi qua mẫu Zalo ZNS PA_RISK_ADVISORY_V3"],"ops.advb":["NE wind <b>5.2 m/s</b> across your open excavation (2,400 m²), no rain in the preceding 6 h. Downwind 400 m: <b>~1,120 residents</b>, Kim Liên primary school.","Gió đông bắc <b>5,2 m/s</b> thổi qua hố đào hở (2.400 m²), 6 giờ trước không mưa. Cuối gió 400 m: <b>~1.120 cư dân</b>, trường tiểu học Kim Liên."],"ops.advw":["If an exceedance occurs with the perimeter open, the clause at risk is <b>Decree 16/2022 Art.16</b>, estimated 15–20M VND for a project of this class, plus a remediation order.","Nếu xảy ra vượt ngưỡng khi hàng rào còn hở, điều khoản có nguy cơ áp dụng là <b>Nghị định 16/2022 Điều 16</b>, ước tính 15–20 triệu đồng với dự án hạng này, kèm biện pháp khắc phục bắt buộc."],"ops.ev":["Evidence feed · last 24 h","Dòng bằng chứng · 24 giờ qua"],"ops.evh":["Every entry is a sealed, hash-chained pack. Faces and plates blurred at the edge before upload.","Mỗi dòng là một gói bằng chứng đã niêm phong, băm nối chuỗi. Khuôn mặt và biển số được làm mờ ngay tại biên trước khi tải lên."],"ops.accepted":["Accepted","Đã chấp nhận"],"ops.acceptedb":["Schedule updated, M1 recomputed, peak risk for tomorrow now","Lịch thi công đã cập nhật, M1 tính lại, rủi ro cao nhất ngày mai còn"],"ops.acceptedc":["Logged as a prevented event: counterfactual, excluded from measured-impact reporting.","Ghi nhận là sự cố đã ngăn chặn, mang tính giả định, không tính vào báo cáo tác động đo được."],"th.time":["Time","Thời điểm"],"th.layer":["Layer","Lớp"],"th.outcome":["Outcome","Kết quả"],"th.conf":["Conf.","Tin cậy"],"st.ok":["compliant","tuân thủ"],"st.bad":["finding","vi phạm"],"st.unk":["uncertain","chưa chắc chắn"],"ev.1":["stockpile uncovered","bãi vật liệu không che phủ"],"ev.2":["remediated","đã khắc phục"],"ev.3":["→ human queue","→ chuyển người duyệt"],"ev.6":["advisory sent","đã gửi khuyến nghị"],"ev.6b":["ZNS delivered","ZNS đã gửi tới"],"cam.det":["Detections in this frame","Vật thể nhận diện trong khung hình"],"cam.h":["Tier-1 output on the edge box. Confidence, then the control layer each detection belongs to.","Kết quả Tier-1 trên thiết bị biên. Độ tin cậy, rồi lớp kiểm soát mà mỗi vật thể thuộc về."],"cam.note":["No finding comes from a single frame. Seven of ten frames, then a second model checks.","Không kết luận từ một khung hình. Phải 7/10 khung, rồi mô hình thứ hai kiểm lại."],"cam.cov":["Cover the stockpile","Che bãi vật liệu"],"cam.spray":["Misting on","Bật phun sương"],"cam.sheet":["Sheet the truck load","Phủ bạt thùng xe"],"cam.ba":["Before and after, fifteen minutes apart","Trước và sau, cách nhau mười lăm phút"],"cam.bah":["Drag the divider. Left is 14:22 when the finding was raised. Right is 14:37 when the re-check passed.","Kéo thanh chia. Bên trái là 14:22 lúc lập vi phạm. Bên phải là 14:37 lúc kiểm tra lại đạt."],"cam.before":["14:22 · finding","14:22 · vi phạm"],"cam.after":["14:37 · verified","14:37 · đã kiểm chứng"],"cam.pred":["Predicted site conditions","Hiện trường theo dự báo"],"cam.predh":["The same camera, rendered from the inputs on the left. Turn the control layers on and watch the dust.","Vẫn camera đó, dựng lại từ các đầu vào bên trái. Bật tắt lớp kiểm soát và nhìn bụi thay đổi."],"cam.replay":["Camera, following the clock","Camera, chạy theo đồng hồ"],"cam.bnFind":["FINDING · L2 covering","VI PHẠM · L2 che phủ"],"cam.bnOk":["ALL LAYERS COMPLIANT","TẤT CẢ CÁC LỚP TUÂN THỦ"],"cam.bnRev":["UNCERTAIN · human review","CHƯA CHẮC · chuyển người duyệt"],"cam.bnScan":["CANDIDATE · confirming","NGHI VẤN · đang xác nhận"],"cam.bnFix":["REMEDIATION IN PROGRESS","ĐANG KHẮC PHỤC"],"cam.bnVer":["VERIFIED · case closed","ĐÃ KIỂM CHỨNG · đóng hồ sơ"],"cam.bnRisk":["FORECAST RISK","RỦI RO DỰ BÁO"],"map.title":["System operating map: how the machine actually works","Sơ đồ hoạt động hệ thống, cỗ máy chạy thế nào"],"map.sub":["Six stages from raw signal to verified outcome. Click any stage to open its inputs, method, thresholds and outputs. The three stages the judges will ask about (spike detection, object recognition, fault analysis) each carry their own diagram.","Sáu giai đoạn từ tín hiệu thô tới kết quả đã kiểm chứng. Bấm vào một giai đoạn để xem đầu vào, phương pháp, ngưỡng và đầu ra. Ba giai đoạn giám khảo chắc chắn sẽ hỏi (phát hiện bụi tăng đột biến, nhận biết vật thể, phân tích lỗi) mỗi giai đoạn có sơ đồ riêng."],"map.flow":["Pipeline","Chuỗi xử lý"],"map.click":["Click a stage","Bấm vào một giai đoạn"],"map.in":["Inputs","Đầu vào"],"map.method":["Method","Phương pháp"],"map.thr":["Thresholds & parameters","Ngưỡng và tham số"],"map.out":["Output","Đầu ra"],"map.fail":["What breaks it","Điểm dễ hỏng"],"map.lat":["Latency","Độ trễ"],"map.runs":["Runs on","Chạy trên"],"sim.title":["M1 · Dispersion risk model, live","M1 · Mô hình rủi ro phát tán, chạy trực tiếp"],"sim.sub":["The physics prior from the whitepaper, running in the browser. Move an input, watch the risk and the site respond.","Phần vật lý trong whitepaper, chạy ngay trong trình duyệt. Đổi một đầu vào, xem rủi ro và hiện trường thay đổi."],"sim.in":["Inputs","Đầu vào"],"sim.inh":["Activity and area come from the registered schedule (digitised by FPT AI Read); meteorology from the hourly forecast feed.","Hoạt động và diện tích lấy từ lịch thi công đã đăng ký (số hoá bằng FPT AI Read); khí tượng lấy từ nguồn dự báo theo giờ."],"sim.act":["Activity class","Loại hoạt động"],"sim.area":["Disturbed area","Diện tích bị xáo trộn"],"sim.u":["Wind speed at 10 m","Tốc độ gió ở độ cao 10 m"],"sim.dir":["Wind bearing (from)","Hướng gió (thổi từ)"],"sim.rh":["Relative humidity","Độ ẩm tương đối"],"sim.blh":["Boundary-layer height","Chiều cao lớp biên khí quyển"],"sim.rain":["Rain in the last 6 hours","Có mưa trong 6 giờ qua"],"sim.ctrl":["Control layers active","Lớp kiểm soát đang bật"],"sim.ctrlh":["Control efficiencies are literature-anchored planning values; watering alone is commonly credited at ≈50% in regulatory guidance.","Hiệu suất kiểm soát là giá trị quy hoạch lấy từ tài liệu; riêng phun nước thường được ghi nhận ≈50% trong hướng dẫn quản lý."],"sim.out":["Model output","Kết quả mô hình"],"sim.p":["P(fence-line exceedance)","P(vượt ngưỡng tại hàng rào)"],"sim.fdpi":["FDPI (relative)","FDPI (tương đối)"],"sim.ef":["Activity term","Số hạng hoạt động"],"sim.fw":["Wind term f(u)","Số hạng gió f(u)"],"sim.gm":["Moisture term g(RH,P)","Số hạng ẩm g(RH,P)"],"sim.hs":["Stability term h(BLH)","Số hạng ổn định h(BLH)"],"sim.ce":["Control efficiency","Hiệu suất kiểm soát"],"sim.reach":["Plume reach (est.)","Tầm với luồng bụi (ước tính)"],"sim.fp":["Downwind footprint","Vùng ảnh hưởng cuối gió"],"sim.drv":["Driver attribution","Phân rã yếu tố tác động"],"sim.drvh":["Contribution of each term to the current risk score, the same decomposition that becomes the advisory text.","Đóng góp của từng số hạng vào điểm rủi ro hiện tại, chính phân rã này được viết thành nội dung khuyến nghị."],"sim.drvn":["Emission-factor constants are US-derived (EPA AP-42 Ch. 13.2) and are used here only as a prior shape. Absolute concentrations are not claimed until the constants are re-fitted against Hanoi fence-line measurements during the pilot.","Hằng số hệ số phát thải có nguồn gốc Hoa Kỳ (EPA AP-42 Ch. 13.2) và ở đây chỉ dùng làm dạng hàm tiên nghiệm. Chúng tôi không tuyên bố nồng độ tuyệt đối cho tới khi các hằng số được hiệu chỉnh lại theo số đo tại hàng rào ở Hà Nội trong giai đoạn thí điểm."],"sim.amp":["Terms above 1.00 amplify risk; below 1.00 suppress it.","Số hạng lớn hơn 1,00 làm tăng rủi ro; nhỏ hơn 1,00 làm giảm."],"sim.rin":["receptor(s) in the cone","đối tượng nhạy cảm nằm trong vùng ảnh hưởng"],"sim.rnone":["No mapped receptor inside the downwind cone at this reach.","Không có đối tượng nhạy cảm nào trong vùng ảnh hưởng cuối gió ở tầm với này."],"sim.risk":["Dust risk","Rủi ro bụi"],"sim.drvmain":["Main drivers","Yếu tố chính"],"sim.area2":["Downwind area","Vùng ảnh hưởng cuối gió"],"sim.rec":["Recommended action","Hành động khuyến nghị"],"sim.tech":["View technical model details","Xem chi tiết mô hình kỹ thuật"],"sim.techclose":["Hide technical details","Ẩn chi tiết kỹ thuật"],"sim.techh":["The physics prior, its terms, and the caveat on the emission-factor constants. SHAP values also appear in the forecast tooltip while this panel is open.","Phần vật lý, các số hạng và lưu ý về hằng số hệ số phát thải. Khi mở bảng này, giá trị SHAP cũng hiện trong chú giải biểu đồ dự báo."],"sim.adv0":["Conditions are already low risk. Keep the current controls in place.","Điều kiện đang ở mức rủi ro thấp. Duy trì các biện pháp hiện tại."],"sim.adv3":["Move the work to a low-wind window","Chuyển việc sang khung giờ gió nhẹ"],"sim.adv3h":["All five controls are already active, so timing is the remaining lever.","Cả năm biện pháp đã bật, nên chỉ còn cách đổi thời điểm thi công."],"sim.advfrom":["risk","rủi ro"],"rp.pause":["Pause","Tạm dừng"],"rp.next":["Next step ›","Bước tiếp ›"],"rp.ph1":["Detect","Phát hiện"],"rp.ph2":["Assess","Đánh giá"],"rp.ph3":["Act","Hành động"],"rp.ph4":["Verify","Kiểm chứng"],"rp.scn":["Scenario: the preventive recommendation was not accepted. This is what PreventAir does when prevention fails.","Kịch bản: khuyến nghị phòng ngừa đã không được chấp nhận. Đây là cách PreventAir xử lý khi việc ngăn chặn thất bại."],"vis.title":["M2 · Visual compliance engine","M2 · Bộ máy kiểm tra tuân thủ bằng hình ảnh"],"vis.sub":["A simulated site camera with live detection overlays. Toggle the scene and watch the model change its mind.","Camera công trường mô phỏng kèm lớp nhận diện trực tiếp. Bật tắt hiện trường và xem mô hình đổi kết luận."],"vis.pipe":["Pipeline · per candidate event","Chuỗi xử lý · cho mỗi sự kiện nghi vấn"],"vis.run":["Run one event through the pipeline","Chạy thử một sự kiện qua chuỗi xử lý"],"vis.reset":["Reset","Đặt lại"],"vis.hyst":["Temporal filter · why it exists","Bộ lọc thời gian · vì sao cần có"],"vis.hysth":["Raise at 7 of 10 frames, clear at 3 of 10. Without this filter, false alarms roughly triple.","Vào trạng thái vi phạm khi 7/10 khung, thoát khi còn 3/10. Bỏ bộ lọc này thì báo động giả tăng khoảng ba lần."],"vis.hystn":["Enter the non-compliant state at 7 of 10 frames, exit at 3 of 10. Removing this filter roughly triples false positives in our design estimate.","Vào trạng thái vi phạm khi 7/10 khung hình, thoát ra khi còn 3/10. Bỏ bộ lọc này sẽ làm số báo động giả tăng khoảng ba lần theo ước tính thiết kế."],"vis.raw":["raw frame","khung hình thô"],"vis.filt":["filtered","sau lọc"],"vis.frames":["red = non-compliant","đỏ = vi phạm"],"vis.op":["Per-layer operating points","Điểm vận hành theo từng lớp"],"vis.oph":["Precision-first, because a false accusation costs far more than a missed event. Phase 1 is L1, L2 and L5 at a 0.90 precision target. Phase 2 is L3 and L4 at 0.85: thin mist and per-vehicle wash verification are genuinely harder, so they stay advisory signal until they clear that bar on Hanoi data.","Ưu tiên độ chính xác, vì một cáo buộc sai đắt hơn nhiều so với một sự cố bị bỏ sót. Giai đoạn 1 gồm L1, L2 và L5 với mục tiêu độ chính xác 0,90. Giai đoạn 2 gồm L3 và L4 ở mức 0,85: sương phun mỏng và việc xác minh rửa bánh từng xe thực sự khó hơn, nên hai lớp này chỉ là tín hiệu tham khảo cho tới khi đạt ngưỡng đó trên dữ liệu Hà Nội."],"th.t1":["Tier-1 signal","Tín hiệu tầng 1"],"th.t2":["Tier-2 question","Câu hỏi tầng 2"],"th.phase":["Phase","Giai đoạn"],"th.prec":["Precision target","Mục tiêu độ chính xác"],"th.rec":["Recall target","Mục tiêu độ bao phủ"],"dis.title":["Regulator console: district view","Bảng điều khiển cơ quan quản lý, cấp quận"],"dis.sub":["Read-only, access-logged per record. An anomaly at a monitoring node produces a wind cone and a ranked candidate set; nothing becomes a finding until the vision engine corroborates it at that site in the same window. Click a site, or press \"simulate anomaly\" to see the attribution step run.","Chỉ đọc, ghi nhật ký truy cập từng bản ghi. Một bất thường tại trạm đo sinh ra một hình nón ngược gió và danh sách nghi vấn có xếp hạng; không có gì trở thành vi phạm cho tới khi bộ nhận diện hình ảnh xác nhận tại đúng công trường đó, trong cùng khung thời gian. Bấm vào một công trường, hoặc bấm \"mô phỏng bất thường\" để xem bước quy trách nhiệm chạy."],"dis.map":["Cầu Giấy · schematic","Cầu Giấy · sơ đồ nguyên lý"],"dis.maph":["Sites coloured by 30-day compliance score. The cone is the M3 upwind candidate region.","Công trường tô màu theo điểm tuân thủ 30 ngày. Hình nón là vùng nghi vấn ngược gió do M3 dựng."],"dis.sim":["Simulate PM10 anomaly at node N-02","Mô phỏng bất thường PM10 tại trạm N-02"],"dis.clear":["Clear","Xoá"],"dis.legend":["schematic · not to scale · square = site, circle = fence-line node","sơ đồ nguyên lý · không theo tỉ lệ · ô vuông = công trường, hình tròn = trạm đo hàng rào"],"dis.cone":["upwind cone · NE 4.8 m/s","nón ngược gió · ĐB 4,8 m/s"],"dis.rank":["Candidate ranking · M3","Xếp hạng nghi vấn · M3"],"dis.reg":["Site register","Danh bạ công trường"],"dis.noanom":["No active anomaly. The console shows the site register.","Không có bất thường nào. Bảng điều khiển đang hiển thị danh bạ công trường."],"dis.anom":["Anomaly at <b>N-02</b>, +2.4σ above site baseline. Wind NE 4.8 m/s.","Bất thường tại <b>N-02</b>, +2,4σ so với đường nền của công trường. Gió đông bắc 4,8 m/s."],"dis.anom2":["remain inside the upwind cone after Gaussian back-calculation eliminated implausible sources.","công trường còn lại trong nón ngược gió sau khi phép tính ngược Gauss loại bỏ các nguồn bất khả thi."],"dis.hyp":["Ranked hypotheses only. No finding is recorded until M2 corroborates a control-layer failure at that site in the same window.","Chỉ là giả thuyết có xếp hạng. Không ghi nhận vi phạm cho tới khi M2 xác nhận một lớp kiểm soát bị lỗi tại công trường đó, trong cùng khung thời gian."],"dis.selh":["Selected site","Công trường đã chọn"],"dis.selnone":["Select a site from the map or the table.","Chọn một công trường trên sơ đồ hoặc trong bảng."],"th.site":["Site","Công trường"],"th.score":["Score","Điểm"],"th.last":["Last finding","Vi phạm gần nhất"],"th.post":["Posterior","Xác suất hậu nghiệm"],"d.phase":["Phase","Giai đoạn"],"d.area":["Disturbed area","Diện tích xáo trộn"],"d.score":["Compliance score","Điểm tuân thủ"],"d.dist":["Distance from N-02","Khoảng cách tới N-02"],"d.incone":["In upwind cone","Nằm trong nón ngược gió"],"d.yes":["yes","có"],"d.note":["Regulator access is read-only and logged per record. Sites below 85% observation coverage are excluded from any public ranking.","Cơ quan quản lý chỉ có quyền đọc và mọi truy cập đều được ghi nhật ký. Công trường có độ phủ quan sát dưới 85% không được đưa vào bất kỳ bảng xếp hạng công khai nào."],"d.none30":["none in 30 d","không có trong 30 ngày"],"ph.exc":["Excavation","Đào đất"],"ph.fin":["Finishing","Hoàn thiện"],"ph.earth":["Earthworks","Thi công nền"],"ph.str":["Structure","Kết cấu"],"ph.mat":["Material handling","Bốc dỡ vật liệu"],"rp.title":["Incident replay: detect · assess · act · verify","Tái hiện sự cố, phát hiện · đánh giá · hành động · kiểm chứng"],"rp.sub":["One Layer 2 event at real proportions. Press play and watch the camera, the sensor and the phone move together.","Một sự cố Lớp 2 đúng tỉ lệ thời gian thật. Bấm phát và xem camera, cảm biến và điện thoại chạy cùng nhau."],"rp.tl":["Timeline","Dòng thời gian"],"rp.play":["▶ Play incident","▶ Phát sự cố"],"rp.reset":["Reset","Đặt lại"],"rp.pm":["Fence-line PM10 · downwind node","PM10 tại hàng rào · trạm cuối gió"],"rp.pmh":["Residual after removing city background and the site's own diurnal baseline.","Phần dư sau khi trừ nền toàn thành phố và chu kỳ ngày–đêm của chính công trường."],"rp.pmx":["µg/m³ residual · 20 minutes of the incident","µg/m³ phần dư · 20 phút của sự cố"],"rp.thr":["site 2σ threshold","ngưỡng 2σ của công trường"],"rp.zalo":["Zalo Official Account","Tài khoản Zalo OA"],"ar.title":["Architecture and FPT service mapping","Kiến trúc và ánh xạ sang dịch vụ FPT"],"ar.sub":["Five planes. The boundary between edge and cloud is the cost and privacy line: only events cross it, never continuous video.","Năm tầng. Ranh giới giữa biên và đám mây chính là ranh giới chi phí và quyền riêng tư: chỉ sự kiện được truyền qua, không bao giờ truyền video liên tục."],"ar.tbl":["Where each FPT service is used","Từng dịch vụ FPT được dùng ở đâu"],"ar.c1":["PreventAir component","Thành phần PreventAir"],"ar.c2":["FPT service","Dịch vụ FPT"],"ar.c3":["Confidence","Mức chắc chắn"],"ar.note":["\"FPT Camera AI\" is FPT Telecom's consumer/SME camera product and is not the right reference for this system. The enterprise capability is FPT AI Vision Agents.","\"FPT Camera AI\" là sản phẩm camera cho hộ gia đình/doanh nghiệp nhỏ của FPT Telecom và không phải thứ nên dẫn chiếu cho hệ thống này. Năng lực dành cho doanh nghiệp là FPT AI Vision Agents."],"ar.cost":["Per-site cost of goods","Chi phí vận hành mỗi công trường"],"ar.costc":["Edge box, two fence-line nodes, connectivity, Tier-2 inference, storage, messaging, human review, all amortised. Target price 2.5–4.0M VND.","Thiết bị biên, hai trạm đo hàng rào, kết nối, suy luận tầng 2, lưu trữ, tin nhắn, kiểm duyệt thủ công, đã phân bổ khấu hao. Giá bán mục tiêu 2,5–4,0 triệu đồng."],"ar.lat":["End-to-end detection latency","Độ trễ phát hiện đầu-cuối"],"ar.latc":["Emission onset to the site manager's phone, against a status quo measured in days. The 5-minute temporal filter is the largest term and is deliberate.","Từ lúc bụi bắt đầu phát tán tới điện thoại của chỉ huy công trường, so với hiện trạng tính bằng ngày. Bộ lọc thời gian 5 phút là thành phần lớn nhất và là lựa chọn có chủ ý."],"ar.bw":["Upstream bandwidth","Băng thông tải lên"],"ar.bwc":["Events only, three cameras. Continuous 1080p upload would be roughly 2 TB, two orders of magnitude more.","Chỉ truyền sự kiện, ba camera. Truyền liên tục 1080p sẽ tốn khoảng 2 TB, gấp khoảng một trăm lần."],"ar.month":["/month","/tháng"],"ar.min":["min","phút"]};
+const MAPD = [];
+let LANG='en';
+const IX = ()=>LANG==='en'?0:1;
+const t = k => (I18N[k]||[k,k])[IX()];
+const tv = a => Array.isArray(a) ? a[IX()] : a;
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const SVG='http://www.w3.org/2000/svg';
+const el=(t,a={},p)=>{const n=document.createElementNS(SVG,t);for(const k in a)n.setAttribute(k,a[k]);if(p)p.appendChild(n);return n;};
+const tt=$('#tt');
+function showTT(e,html){tt.innerHTML=html;tt.style.opacity=1;moveTT(e);}
+function moveTT(e){const r=tt.getBoundingClientRect();let x=e.clientX+14,y=e.clientY-10;
+  if(x+r.width>innerWidth-10)x=e.clientX-r.width-14; if(y+r.height>innerHeight-10)y=innerHeight-r.height-10;
+  tt.style.left=x+'px';tt.style.top=y+'px';}
+function hideTT(){tt.style.opacity=0;}
+const C={teal:'#0a8a66',amber:'#c07f00',red:'#d03b3b',green:'#0ca30c',blue:'#2a78d6',dim:'#7c8798',line:'#e4eaf3',line2:'#cbd8e8',ink:'#0b0b0b',mid:'#52514e'};
+const bandColor=p=>p>=.6?C.red:p>=.3?C.amber:C.green;
+const bandName=p=>LANG==='en'?(p>=.6?'HIGH':p>=.3?'MODERATE':'LOW'):(p>=.6?'CAO':p>=.3?'TRUNG BÌNH':'THẤP');
+const num=v=>{const x=String(v);return LANG==='en'?x:x.replace(/[.,]/g,m=>m===','?'.':',');};
+
+/* ---------- nav + language ---------- */
+$$('nav button').forEach(b=>b.onclick=()=>{
+  $$('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  $$('.page').forEach(p=>p.classList.remove('on'));$('#'+b.dataset.p).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});});
+$$('.lang button').forEach(b=>b.onclick=()=>{
+  if(LANG===b.dataset.l)return;
+  LANG=b.dataset.l; document.documentElement.lang=LANG;
+  $$('.lang button').forEach(x=>x.classList.toggle('on',x.dataset.l===LANG));
+  renderAll();});
+
+function applyStatic(){ $$('[data-k]').forEach(n=>{ n.innerHTML=t(n.dataset.k); }); }
+
+/* ================= OPS ================= */
+const FC=(()=>{const a=[];const base=[.08,.06,.05,.05,.06,.09,.14,.18,.22,.26,.3,.34,.4,.46,.5,.44,.36,.3,.22,.16,.12,.1,.09,.08];
+  for(let d=0;d<2;d++)for(let h=0;h<24;h++){let p=base[h]*(d?1.45:1)+(d&&h>=13&&h<=16?.28:0);
+    a.push({h,d,p:Math.max(.03,p+(Math.sin(h*1.7+d)*0.03))});}
+  const mx=Math.max(...a.map(x=>x.p)); a.forEach(x=>{x.p=x.p*(0.71/mx);}); return a;})();
+const DRV_HI=[['Strong north-easterly wind','Gió đông bắc mạnh'],
+              ['Large open excavation','Diện tích đào hở lớn'],
+              ['No rainfall in the last 6 hours','6 giờ qua không mưa'],
+              ['Limited active controls','Ít biện pháp kiểm soát đang bật']];
+const DRV_LO=[['Light wind','Gió nhẹ'],
+              ['Finishing works only','Chỉ thi công hoàn thiện'],
+              ['Humid air suppresses dust','Không khí ẩm làm giảm bụi']];
+const DRV_MID=[['Moderate wind','Gió trung bình'],
+               ['Material handling on site','Đang bốc dỡ vật liệu'],
+               ['Dry ground surface','Mặt đất khô']];
+const SHAP_HI=['wind_speed_10m +0.28 · activity=excavation +0.22 · precip_6h +0.14','tốc_độ_gió +0,28 · hoạt_động=đào_đất +0,22 · mưa_6h +0,14'];
+const SHAP_LO=['activity=finishing +0.07 · wind_speed_10m +0.04 · rh −0.05','hoạt_động=hoàn_thiện +0,07 · tốc_độ_gió +0,04 · độ_ẩm −0,05'];
+function drawFC(){
+  const w=660,h=200,pl=34,pb=26,pt=14;
+  const s=el('svg',{viewBox:`0 0 ${w} ${h}`,width:'100%',style:'display:block'});
+  const bw=(w-pl-8)/FC.length;
+  // advisory band sits behind everything and never eats a hover
+  el('rect',{x:pl+37*bw,y:pt,width:4*bw,height:h-pt-pb,fill:C.red,opacity:.09,'pointer-events':'none'},s);
+  [0,.25,.5,.75,1].forEach(v=>{const y=pt+(1-v)*(h-pt-pb);
+    el('line',{x1:pl,x2:w-6,y1:y,y2:y,stroke:C.line,'stroke-width':1,'pointer-events':'none'},s);
+    el('text',{x:pl-7,y:y+3.5,fill:C.dim,'font-size':9,'text-anchor':'end','pointer-events':'none'},s).textContent=(v*100)+'%';});
+  const bars=FC.map((d,i)=>{
+    const bh=d.p*(h-pt-pb), x=pl+i*bw+1, y=h-pb-bh;
+    return el('rect',{x,y,width:Math.max(1,bw-2),height:bh,fill:bandColor(d.p),opacity:.85,rx:1.5,'pointer-events':'none'},s);
+  });
+  [0,6,12,18,24,30,36,42].forEach(i=>{
+    el('text',{x:pl+i*bw+bw/2,y:h-9,fill:C.dim,'font-size':9,'text-anchor':'middle','pointer-events':'none'},s)
+      .textContent=(i<24?'':'+1d ')+String(FC[i].h).padStart(2,'0');});
+  const gx=pl+24*bw;
+  el('line',{x1:gx,x2:gx,y1:pt,y2:h-pb,stroke:C.line2,'stroke-dasharray':'3 3','pointer-events':'none'},s);
+  el('text',{x:pl+39*bw,y:pt+11,fill:C.red,'font-size':9,'text-anchor':'middle','pointer-events':'none'},s)
+    .textContent=LANG==='en'?'advisory window':'cửa sổ khuyến nghị';
+  // full-height hit targets on top, so any point in a column triggers the tooltip
+  FC.forEach((d,i)=>{
+    const hit=el('rect',{x:pl+i*bw,y:pt,width:bw,height:h-pt-pb,fill:'transparent','pointer-events':'all'},s);
+    hit.style.cursor='pointer';
+    hit.addEventListener('mouseenter',e=>{
+      bars[i].setAttribute('opacity',1);
+      const drv=(d.p>.5?DRV_HI:(d.p>=.3?DRV_MID:DRV_LO)).map(x=>'· '+tv(x)).join('<br>');
+      const day=d.d?(LANG==='en'?'Tomorrow':'Ngày mai'):(LANG==='en'?'Today':'Hôm nay');
+      const shap=techOpen?`<div style="margin-top:7px;padding-top:6px;border-top:1px solid ${C.line2};color:${C.dim};font-size:10.5px">SHAP · ${tv(d.p>.5?SHAP_HI:SHAP_LO)}</div>`:'';
+      showTT(e,`<b>${day} ${String(d.h).padStart(2,'0')}:00</b><br>${t('sim.risk')} <b style="color:${bandColor(d.p)}">${(d.p*100).toFixed(0)}%</b> · ${bandName(d.p)}
+        <div style="margin-top:6px;color:${C.dim};font-size:11px">${t('sim.drvmain')}</div>${drv}${shap}`);
+    });
+    hit.addEventListener('mousemove',moveTT);
+    hit.addEventListener('mouseleave',()=>{ bars[i].setAttribute('opacity',.85); hideTT(); });
+  });
+  $('#fc').innerHTML='';$('#fc').appendChild(s);
+}
+const LAYERS=[
+  ['L1',['Site enclosure','Che chắn công trường'],['hoarding / netting continuous along the boundary','hàng rào / lưới che liên tục dọc ranh giới'],'ok',0.97],
+  ['L2',['Covering','Che phủ'],['stockpiles and departing haulage sheeted','bãi vật liệu và xe chở ra đều được phủ bạt'],'bad',0.94],
+  ['L3',['Active spraying','Phun nước chủ động'],['misting responsive to conditions, not on a timer','phun sương theo điều kiện thực tế, không chạy theo hẹn giờ'],'unk',0.58],
+  ['L4',['Gate control','Kiểm soát cổng'],['wheel wash used, no spillage on the public apron','có rửa bánh xe, không rơi vãi ra đường công cộng'],'ok',0.86],
+  ['L5',['Timing','Thời điểm thi công'],['no dust activity inside a high-risk window','không thi công gây bụi trong khung giờ rủi ro cao'],'ok',0.99]];
+function drawLayers(){
+  $('#layers').innerHTML=LAYERS.map(([id,nm,d,st,c])=>`
+  <div class="layer"><div class="id">${id}</div><div class="nm">${tv(nm)}<small>${tv(d)}</small></div>
+    <div style="text-align:right"><span class="st ${st}">${t('st.'+st)}</span>
+      <div class="mono" style="font-size:10.5px;color:var(--dim);margin-top:3px">${LANG==='en'?'conf':'tin cậy'} ${num(c.toFixed(2))}</div></div></div>`).join('');
+}
+const OPTS=[[['Move earthworks to Thu 06:00–10:00','Chuyển thi công đất sang thứ Năm 06:00–10:00'],0.71,0.11,true],
+            [['Continuous misting + sheeted haulage','Phun sương liên tục + phủ bạt xe chở'],0.71,0.43,false],
+            [['Defer haulage movements only','Chỉ hoãn các chuyến xe vận chuyển'],0.71,0.55,false]];
+let acceptedOpt=null;
+function drawOpts(){
+  if(acceptedOpt!==null){
+    const o=OPTS[acceptedOpt];
+    $('#opts').innerHTML=`<div style="background:rgba(92,196,127,.1);border:1px solid rgba(92,196,127,.3);border-radius:9px;padding:12px 14px;font-size:13px">
+      <b style="color:var(--green)">${t('ops.accepted')} · ${tv(o[0])}</b><br>
+      <span style="color:var(--mid)">${t('ops.acceptedb')} <b style="color:${bandColor(o[2])}">${(o[2]*100)|0}%</b>.</span></div>`;
+    return;}
+  $('#opts').innerHTML=OPTS.map(([tx,a,b,pri],i)=>`
+    <div style="display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid ${pri?'rgba(46,196,166,.35)':'var(--line)'};border-radius:9px;padding:10px 12px">
+      <div style="flex:1;font-size:13px">${tv(tx)}</div>
+      <div class="mono" style="font-size:12px;color:var(--dim)">${(a*100)|0}% → <b style="color:${bandColor(b)}">${(b*100)|0}%</b></div>
+      <button class="${pri?'act':'ghost'}" data-i="${i}" style="padding:6px 11px;font-size:12px">${pri?(LANG==='en'?'Accept':'Chấp nhận'):(LANG==='en'?'Choose':'Chọn')}</button></div>`).join('');
+}
+document.addEventListener('click',e=>{const b=e.target.closest('#opts button');if(!b)return;acceptedOpt=+b.dataset.i;drawOpts();});
+const EV=[['14:22',['L2 covering','L2 che phủ'],'bad','ev.1','0.94'],
+          ['14:37',['L2 covering','L2 che phủ'],'ok','ev.2','0.96'],
+          ['11:05',['L4 gate','L4 cổng'],'unk','ev.3','0.71'],
+          ['09:40',['L3 spraying','L3 phun nước'],'ok',null,'0.88'],
+          ['08:12',['L1 enclosure','L1 che chắn'],'ok',null,'0.97'],
+          ['06:04',['–','–'],'unk','ev.6b','–']];
+function drawEv(){
+  $('#evrows').innerHTML=EV.map(([tm,ly,st,extra,c],i)=>{
+    const label=i===1?t('ev.2'):i===5?t('ev.6'):t('st.'+st);
+    const tail=i===1?(LANG==='en'?' 15 min':' 15 phút'):(i===5?' '+t('ev.6b'):(extra?' '+t(extra):''));
+    return `<tr><td class="mono">${tm}</td><td>${tv(ly)}</td><td><span class="st ${st}">${label}</span>${tail}</td><td class="mono">${num(c)}</td></tr>`;}).join('');
+}
+
+/* ================= SYSTEM MAP ================= */
+let mapSel=1;
+function drawStages(){
+  $('#stages').innerHTML=MAPD.map((s,i)=>`
+    <div class="stage ${i===mapSel?'on':''}" data-i="${i}">
+      <div class="code">${s.code}</div>
+      <div><div class="nm">${tv(s.name)}</div><div class="one">${tv(s.one)}</div></div>
+    </div>${i<MAPD.length-1?'<div class="conn"></div>':''}`).join('');
+  $$('#stages .stage').forEach(n=>n.onclick=()=>{mapSel=+n.dataset.i;drawStages();drawMapDetail();});
+}
+function drawMapDetail(){
+  const s=MAPD[mapSel];
+  const list=(arr,cls='')=>`<ul class="${cls}">`+arr.map(x=>`<li>${tv(x)}</li>`).join('')+'</ul>';
+  $('#mapdetail').innerHTML=`
+    <div style="display:flex;align-items:center;gap:11px">
+      <div class="code" style="width:34px;height:34px;border-radius:9px;background:var(--teal);color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800">${s.code}</div>
+      <div style="font-size:16px;font-weight:700">${tv(s.name)}</div></div>
+    <div style="font-size:13px;color:var(--mid);margin-top:7px">${tv(s.one)}</div>
+    <div class="pillrow">
+      <span class="mini"><b>${t('map.runs')}:</b> ${tv(s.runs)}</span>
+      <span class="mini"><b>${t('map.lat')}:</b> ${tv(s.lat)}</span></div>
+    <div id="mapdiag" style="margin-top:14px"></div>
+    <h4>${t('map.flow')}</h4>${list(s.steps,'steps')}
+    <h4>${t('map.in')}</h4>${list(s.inputs)}
+    <h4>${t('map.method')}</h4>${list(s.method)}
+    <h4>${t('map.thr')}</h4>${list(s.thr)}
+    <h4>${t('map.out')}</h4><div class="mono-out">${tv(s.out[0])}</div>
+    <h4>${t('map.fail')}</h4>${list(s.fail)}`;
+  drawDiagram(s.diagram);
+}
+function drawDiagram(kind){
+  const host=$('#mapdiag'); if(!host)return; host.innerHTML='';
+  const W=520,H=kind==='spike'?170:kind==='vision'?150:kind==='fault'?200:130;
+  const s=el('svg',{viewBox:`0 0 ${W} ${H}`,width:'100%',style:'display:block'});
+  el('rect',{x:0,y:0,width:W,height:H,fill:'#f3f7fd',rx:9},s);
+  const txt=(x,y,str,col=C.mid,sz=9.5,anch='start',w=400)=>{const n=el('text',{x,y,fill:col,'font-size':sz,'text-anchor':anch,'font-weight':w},s);n.textContent=str;return n;};
+  const boxn=(x,y,w,h,label,col=C.line2)=>{el('rect',{x,y,width:w,height:h,rx:6,fill:'#ffffff',stroke:col},s);
+    txt(x+w/2,y+h/2+3.2,label,C.ink,9,'middle',600);};
+  if(kind==='sense'){
+    const items=LANG==='en'?['Camera 1 fps','PM pair 1 min','Met hourly','Schedule doc','Public AQ']:['Camera 1 fps','Cặp PM 1 phút','Khí tượng/giờ','Lịch thi công','Nền công cộng'];
+    items.forEach((lb,i)=>boxn(14+i*99,22,90,26,lb));
+    items.forEach((_,i)=>el('path',{d:`M${59+i*99},48 L${260},74`,stroke:C.line2,fill:'none'},s));
+    boxn(170,74,180,26,LANG==='en'?'Edge box · 72 h ring buffer':'Thiết bị biên · đệm vòng 72 giờ',C.teal);
+    el('path',{d:'M260,100 L260,112',stroke:C.line2},s);
+    boxn(170,112,180,24,LANG==='en'?'Event bus (Kafka)':'Bus sự kiện (Kafka)');
+    txt(14,H-8,LANG==='en'?'nothing is interpreted at this stage':'giai đoạn này chưa diễn giải gì',C.dim,8.5);
+  }
+  if(kind==='spike'){
+    const pl=30,pt=16,pb=34,wI=W-pl-14,hI=H-pt-pb;
+    const N=90,raw=[],up=[],res=[];
+    for(let i=0;i<N;i++){const b=26+Math.sin(i/8)*4+Math.cos(i/3)*2;
+      const spike=i>48?Math.min(1,(i-48)/8)*30*Math.exp(-Math.max(0,i-70)/14):0;
+      up.push(b*0.92); raw.push(b+spike); res.push(spike+Math.sin(i/2.5)*1.4);}
+    const X=i=>pl+i/(N-1)*wI, Y=v=>pt+(1-v/64)*hI;
+    [0,20,40,60].forEach(v=>{el('line',{x1:pl,x2:W-14,y1:Y(v),y2:Y(v),stroke:C.line},s);
+      txt(pl-5,Y(v)+3,String(v),C.dim,8,'end');});
+    const path=(arr,col,dash)=>el('path',{d:'M'+arr.map((v,i)=>`${X(i)},${Y(v)}`).join(' L'),fill:'none',stroke:col,'stroke-width':1.6,'stroke-dasharray':dash||''},s);
+    path(raw,C.blue); path(up,C.dim,'3 3'); path(res,C.teal);
+    el('line',{x1:pl,x2:W-14,y1:Y(18),y2:Y(18),stroke:C.amber,'stroke-dasharray':'4 3'},s);
+    txt(W-16,Y(18)-4,LANG==='en'?'2σ threshold':'ngưỡng 2σ',C.amber,8.5,'end');
+    el('circle',{cx:X(60),cy:Y(res[60]),r:3.5,fill:C.red},s);
+    txt(X(60)+6,Y(res[60])-4,LANG==='en'?'anomaly':'bất thường',C.red,8.5);
+    const leg=[[C.blue,LANG==='en'?'downwind raw':'cuối gió thô'],[C.dim,LANG==='en'?'upwind (background)':'đầu gió (nền)'],[C.teal,LANG==='en'?'residual after subtraction':'phần dư sau khi trừ']];
+    leg.forEach((l,i)=>{el('line',{x1:pl+i*160,x2:pl+16+i*160,y1:H-11,y2:H-11,stroke:l[0],'stroke-width':2},s);
+      txt(pl+20+i*160,H-8,l[1],C.dim,8.5);});
+  }
+  if(kind==='vision'){
+    const st=LANG==='en'?['frame 1 fps','Tier-1 detector','N-of-M filter','Tier-2 VLM','calibrate']:['khung 1 fps','Bộ phát hiện T1','Lọc N/M','VLM tầng 2','hiệu chuẩn'];
+    st.forEach((lb,i)=>{boxn(12+i*101,26,92,26,lb,i===3?C.teal:C.line2);
+      if(i<4)el('path',{d:`M${104+i*101},39 L${113+i*101},39`,stroke:C.line2,'marker-end':''},s);});
+    txt(12,68,LANG==='en'?'~100% of frames':'~100% khung hình',C.dim,8.5);
+    txt(315,68,LANG==='en'?'~1% of frames':'~1% khung hình',C.teal,8.5);
+    const outs=LANG==='en'?['finding  p>0.90','human queue  0.60–0.90','discard  p<0.60']:['vi phạm  p>0,90','người duyệt  0,60–0,90','loại bỏ  p<0,60'];
+    const cols=[C.red,C.amber,C.dim];
+    outs.forEach((o,i)=>{el('rect',{x:12+i*168,y:88,width:158,height:24,rx:6,fill:'#ffffff',stroke:cols[i],'stroke-opacity':.6},s);
+      txt(91+i*168,103,o,cols[i],9,'middle',600);});
+    txt(12,H-8,LANG==='en'?'privacy: faces and plates blurred at the edge before upload':'riêng tư: khuôn mặt và biển số làm mờ tại biên trước khi tải lên',C.dim,8.5);
+  }
+  if(kind==='fault'){
+    boxn(14,16,150,26,LANG==='en'?'spike (stage B)':'tăng vọt (giai đoạn B)',C.amber);
+    boxn(356,16,150,26,LANG==='en'?'visual failure (stage C)':'lỗi hình ảnh (giai đoạn C)',C.teal);
+    el('path',{d:'M89,42 L200,66',stroke:C.line2,fill:'none'},s);
+    el('path',{d:'M431,42 L320,66',stroke:C.line2,fill:'none'},s);
+    boxn(180,66,160,26,LANG==='en'?'same site, same 5 min?':'cùng công trường, cùng 5 phút?');
+    el('path',{d:'M260,92 L260,106',stroke:C.line2},s);
+    boxn(120,106,120,24,LANG==='en'?'YES → finding':'CÓ → vi phạm',C.red);
+    boxn(280,106,150,24,LANG==='en'?'NO → hypothesis only':'KHÔNG → chỉ là giả thuyết',C.dim);
+    el('path',{d:'M180,130 L180,144',stroke:C.line2},s);
+    boxn(60,144,240,24,LANG==='en'?'severity × clause × exposure band':'mức độ × điều khoản × khoảng mức phạt');
+    txt(14,H-8,LANG==='en'?'suspicion never becomes evidence on its own':'nghi ngờ không bao giờ tự nó trở thành bằng chứng',C.dim,8.5);
+  }
+  if(kind==='decide'){
+    const ag=LANG==='en'?['ADVISOR  T−18 h','WARDEN  live violation','COACH  how to fix']:['ADVISOR  T−18 giờ','WARDEN  vi phạm trực tiếp','COACH  cách khắc phục'];
+    ag.forEach((a,i)=>boxn(14+i*168,20,158,26,a,C.teal));
+    ag.forEach((_,i)=>el('path',{d:`M${93+i*168},46 L260,70`,stroke:C.line2,fill:'none'},s));
+    boxn(150,70,220,26,LANG==='en'?'guardrails · template · budget':'rào chắn · mẫu tin · hạn mức');
+    el('path',{d:'M260,96 L260,106',stroke:C.line2},s);
+    boxn(170,106,180,24,'Zalo ZNS + dashboard',C.blue);
+    txt(14,H-8,LANG==='en'?'no tool exists that can file with an authority':'không có công cụ nào cho phép gửi hồ sơ tới cơ quan nhà nước',C.dim,8.5);
+  }
+  if(kind==='learn'){
+    const cyc=LANG==='en'?['re-check +15 min','outcome label','active learning','weekly audit']:['kiểm lại +15 phút','gán nhãn kết quả','học chủ động','kiểm toán tuần'];
+    cyc.forEach((c,i)=>{boxn(14+i*126,24,116,26,c);
+      if(i<3)el('path',{d:`M${130+i*126},37 L${138+i*126},37`,stroke:C.line2},s);});
+    el('path',{d:'M72,50 L72,80 L450,80 L450,50',stroke:C.teal,fill:'none','stroke-dasharray':'4 3'},s);
+    txt(260,94,LANG==='en'?'feedback into the next forecast':'phản hồi vào dự báo kế tiếp',C.teal,9,'middle',600);
+    txt(14,H-8,LANG==='en'?'the loop is the asset, it compounds per site and across sites':'vòng lặp chính là tài sản, tích luỹ theo từng công trường và trên toàn mạng lưới',C.dim,8.5);
+  }
+  host.appendChild(s);
+}
+
+/* ================= SIM ================= */
+const ACT=[['demolition',['Demolition','Phá dỡ'],1.00],['excavation',['Excavation / earthworks','Đào đất / thi công nền'],0.85],
+  ['handling',['Material handling & haulage','Bốc dỡ & vận chuyển vật liệu'],0.60],['concreting',['Concreting','Đổ bê tông'],0.30],
+  ['finishing',['Finishing works','Hoàn thiện'],0.15],['idle',['Idle','Nghỉ'],0.05]];
+const CTRL=[['L1',['Site enclosure','Che chắn công trường'],0.30],['L2',['Covering of stockpiles & loads','Che phủ bãi vật liệu & thùng xe'],0.20],
+  ['L3',['Active water spraying','Phun nước chủ động'],0.50],['L4',['Wheel wash & gate control','Rửa bánh xe & kiểm soát cổng'],0.15],
+  ['L5',['Schedule avoidance','Tránh khung giờ rủi ro'],0.25]];
+const cState={L1:true,L2:true,L3:false,L4:true,L5:false};
+const RECEPTORS=[
+  {n:['Kim Liên primary school','Trường tiểu học Kim Liên'],b:248,d:390,w:3},
+  {n:['Residential block A (≈640 people)','Khu dân cư A (≈640 người)'],b:262,d:210,w:2},
+  {n:['Nghĩa Tân market','Chợ Nghĩa Tân'],b:196,d:520,w:2},
+  {n:['Residential block B (≈480 people)','Khu dân cư B (≈480 người)'],b:305,d:300,w:2},
+  {n:['Office tower','Toà văn phòng'],b:120,d:260,w:1},
+  {n:['Residential block C (≈420 people)','Khu dân cư C (≈420 người)'],b:70,d:340,w:2}];
+function drawSimStatic(){
+  $('#i_act').innerHTML=ACT.map(([v,nm])=>`<option value="${v}">${tv(nm)}</option>`).join('');
+  $('#i_act').value=simAct;
+  $('#ctrls').innerHTML=CTRL.map(([id,nm,ce])=>`<label class="chk ${cState[id]?'':'off'}" data-id="${id}">
+    <input type="checkbox" ${cState[id]?'checked':''}> ${id} · ${tv(nm)}<span class="ce">CE ${(ce*100)|0}%</span></label>`).join('');
+}
+let simAct='excavation';
+document.addEventListener('change',e=>{
+  const l=e.target.closest('#ctrls label'); if(l){cState[l.dataset.id]=e.target.checked;l.classList.toggle('off',!e.target.checked);calc();}
+});
+let techOpen=false;
+function plainDrivers(u,area,rain,rh,onCount){
+  const d=[];
+  d.push(u>=4.5?[['Strong north-easterly wind','Gió đông bắc mạnh'],1]
+        :u>=2.6?[['Moderate wind','Gió trung bình'],1]:[['Light wind','Gió nhẹ'],0]);
+  d.push(area>=3000?[['Large open excavation area','Diện tích đào hở lớn'],1]
+        :area>=1200?[['Medium disturbed area','Diện tích xáo trộn trung bình'],1]:[['Small disturbed area','Diện tích xáo trộn nhỏ'],0]);
+  d.push(rain?[['Recent rainfall is suppressing dust','Mưa gần đây đang làm giảm bụi'],0]
+             :[['No rainfall in the last 6 hours','6 giờ qua không mưa'],1]);
+  d.push(onCount<=3?[['Few controls active ('+onCount+' of 5)','Ít biện pháp đang bật ('+onCount+'/5)'],1]
+                   :[['Most controls active ('+onCount+' of 5)','Phần lớn biện pháp đang bật ('+onCount+'/5)'],0]);
+  if(rh>=85) d.push([['Humid air is suppressing dust','Không khí ẩm làm giảm bụi'],0]);
+  return d;
+}
+function pOf(keep,ef,fw,gm,hs){const f=ef*fw*gm*hs*keep;return 1/(1+Math.exp(-(2.05*(Math.log(Math.max(f,1e-4))+0.21))));}
+function calc(){
+  simAct=$('#i_act').value;
+  const area=+$('#i_area').value,u=+$('#i_u').value,dir=+$('#i_dir').value,rh=+$('#i_rh').value,blh=+$('#i_blh').value,rain=$('#i_rain').checked;
+  $('#v_area').textContent=num(area.toLocaleString('en-US'))+' m²';
+  $('#v_u').textContent=num(u.toFixed(1))+' m/s';
+  $('#v_dir').textContent=String(dir).padStart(3,'0')+'°';
+  $('#v_rh').textContent=rh+'%';
+  $('#v_blh').textContent=num(blh.toLocaleString('en-US'))+' m';
+  const efc=ACT.find(a=>a[0]===simAct)[2];
+  const ef=efc*Math.pow(area/2400,0.55);
+  const fw=u<1.2?0.25:Math.min(3.2,Math.pow(u/3.0,1.6));
+  const gm=rain?0.22:Math.max(0.5,Math.min(1.12,1.18-0.0075*(rh-35)));
+  const hs=Math.max(0.6,Math.min(1.8,1200/blh*0.9));
+  let keep=1; CTRL.forEach(([id,,ce])=>{ if(cState[id]) keep*=(1-ce); });
+  const ce=1-keep, fdpi=ef*fw*gm*hs*keep;
+  const p=1/(1+Math.exp(-(2.05*(Math.log(Math.max(fdpi,1e-4))+0.21))));
+  const reach=Math.round(Math.min(1400,120+u*95*Math.min(1.6,fdpi+0.3)));
+  $('#o_p').textContent=(p*100).toFixed(0)+'%'; $('#o_p').style.color=bandColor(p);
+  $('#o_band').innerHTML=`<span class="pill ${p>=.6?'p-hi':p>=.3?'p-md':'p-lo'}">${bandName(p)}</span>`;
+  $('#o_fdpi').textContent=num(fdpi.toFixed(3)); $('#o_ef').textContent=num(ef.toFixed(2));
+  $('#o_fw').textContent=num(fw.toFixed(2)); $('#o_gm').textContent=num(gm.toFixed(2));
+  $('#o_hs').textContent=num(hs.toFixed(2)); $('#o_ce').textContent=(ce*100).toFixed(0)+'%';
+  $('#o_reach').textContent=num(reach.toLocaleString('en-US'))+' m';
+  drawPlume(dir,reach,p,u);
+  renderCamSim(p,dir);
+  // plain-language drivers
+  const onCount=CTRL.filter(([id])=>cState[id]).length;
+  $('#o_drv').innerHTML=plainDrivers(u,area,rain,rh,onCount).slice(0,4).map(([txt,up])=>
+    `<div class="drvrow"><span class="dt" style="background:${up?C.red:C.green}"></span><span>${tv(txt)}</span></div>`).join('');
+  // recommended action
+  let best=null;
+  CTRL.forEach(([id,nm,ce])=>{ if(!cState[id]){
+    let k=1; CTRL.forEach(([id2,,ce2])=>{ if(cState[id2]||id2===id) k*=(1-ce2); });
+    const p2=pOf(k,ef,fw,gm,hs);
+    if(!best||p2<best.p2) best={id,nm,p2};
+  }});
+  let rec;
+  if(p<0.3) rec=t('sim.adv0');
+  else if(best&&best.p2<p-0.04) rec=`<b>${tv(best.nm)}</b><br><span style="color:var(--mid)">${t('sim.advfrom')} ${(p*100)|0}% → <b style="color:${bandColor(best.p2)}">${(best.p2*100)|0}%</b></span>`;
+  else rec=`<b>${t('sim.adv3')}</b><br><span style="color:var(--mid)">${t('sim.adv3h')}</span>`;
+  $('#o_rec').innerHTML=rec;
+  drawDrivers([[['Activity × area','Hoạt động × diện tích'],ef],[['Wind f(u)','Gió f(u)'],fw],[['Moisture g(RH,P)','Ẩm g(RH,P)'],gm],
+               [['Stability h(BLH)','Ổn định h(BLH)'],hs],[['Controls (1−CE)','Kiểm soát (1−CE)'],keep]]);
+  const to=(dir+180)%360, half=Math.max(12,34-u*1.4);
+  const hit=RECEPTORS.filter(r=>{let dd=Math.abs(((r.b-to+540)%360)-180);return dd<=half&&r.d<=reach;});
+  $('#recept').innerHTML=hit.length
+    ? `<b style="color:${bandColor(p)}">${hit.length} ${t('sim.rin')}</b><br>`+hit.map(r=>`· ${tv(r.n)} <span class="mono" style="color:var(--dim)">${r.d} m</span>`).join('<br>')
+    : `<span style="color:var(--green)">${t('sim.rnone')}</span>`;
+}
+function drawPlume(dir,reach,p,u){
+  const S=250,cx=S/2,cy=S/2;
+  const s=el('svg',{viewBox:`0 0 ${S} ${S}`,width:'100%',style:'display:block;max-width:280px'});
+  el('rect',{x:0,y:0,width:S,height:S,fill:'#f3f7fd',rx:10},s);
+  [40,80,110].forEach(r=>el('circle',{cx,cy,r,fill:'none',stroke:C.line,'stroke-width':1},s));
+  const comp=LANG==='en'?['N','E','S','W']:['B','Đ','N','T'];
+  comp.forEach((tx,i)=>{const a=i*90*Math.PI/180;
+    el('text',{x:cx+Math.sin(a)*118,y:cy-Math.cos(a)*118+3.5,fill:C.dim,'font-size':9,'text-anchor':'middle'},s).textContent=tx;});
+  const to=(dir+180)%360, half=Math.max(12,34-u*1.4), R=Math.min(112,reach/1400*112+18);
+  const pt=(ang,r)=>[cx+Math.sin(ang*Math.PI/180)*r, cy-Math.cos(ang*Math.PI/180)*r];
+  const [x1,y1]=pt(to-half,R),[x2,y2]=pt(to+half,R);
+  const g=el('radialGradient',{id:'pg',cx:'50%',cy:'50%',r:'50%'},s);
+  el('stop',{offset:'0%','stop-color':bandColor(p),'stop-opacity':.55},g);
+  el('stop',{offset:'100%','stop-color':bandColor(p),'stop-opacity':.05},g);
+  el('path',{d:`M${cx},${cy} L${x1},${y1} A${R},${R} 0 0,1 ${x2},${y2} Z`,fill:'url(#pg)',stroke:bandColor(p),'stroke-width':1,'stroke-opacity':.5},s);
+  RECEPTORS.forEach(r=>{const rr=Math.min(112,r.d/1400*112+18),[x,y]=pt(r.b,rr);
+    let dd=Math.abs(((r.b-to+540)%360)-180); const inside=dd<=half&&r.d<=reach;
+    el('circle',{cx:x,cy:y,r:r.w+1.5,fill:inside?bandColor(p):C.line2,stroke:inside?'#fff':'none','stroke-width':.6,'stroke-opacity':.5},s);});
+  el('circle',{cx,cy,r:5,fill:C.teal},s); el('circle',{cx,cy,r:9,fill:'none',stroke:C.teal,'stroke-opacity':.4},s);
+  const [ax,ay]=pt(dir,124),[bx,by]=pt(dir,100);
+  el('line',{x1:ax,y1:ay,x2:bx,y2:by,stroke:C.blue,'stroke-width':2},s); el('circle',{cx:bx,cy:by,r:3,fill:C.blue},s);
+  $('#plume').innerHTML=''; $('#plume').appendChild(s);
+}
+function drawDrivers(pairs){
+  $('#drivers').innerHTML=pairs.map(([k,v])=>{
+    const amp=Math.log(Math.max(v,0.02)), pct=Math.min(100,Math.abs(amp)/1.6*100), pos=amp>=0;
+    return `<div style="display:grid;grid-template-columns:150px 1fr 54px;gap:10px;align-items:center;margin-bottom:7px">
+      <div style="font-size:12px;color:var(--mid)">${tv(k)}</div>
+      <div style="height:8px;background:#e4eaf3;border-radius:4px;position:relative;overflow:hidden">
+        <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line2)"></div>
+        <div style="position:absolute;top:0;bottom:0;${pos?'left:50%':'right:50%'};width:${pct/2}%;background:${pos?C.red:C.green};border-radius:4px;opacity:.8"></div></div>
+      <div class="mono" style="font-size:11.5px;text-align:right;color:${pos?'#ff9b84':'#79d494'}">×${num(v.toFixed(2))}</div></div>`;
+  }).join('')+`<div style="font-size:11px;color:var(--dim);margin-top:8px">${t('sim.amp')}</div>`;
+}
+['i_area','i_u','i_dir','i_rh','i_blh'].forEach(id=>document.addEventListener('input',e=>{if(e.target.id===id)calc();}));
+document.addEventListener('click',e=>{ if(e.target.id!=='techBtn')return;
+  techOpen=!techOpen; $('#techPanel').style.display=techOpen?'block':'none';
+  $('#techBtn').textContent=t(techOpen?'sim.techclose':'sim.tech'); });
+document.addEventListener('change',e=>{if(['i_act','i_rain'].includes(e.target.id))calc();});
+
+/* ================= VISION ================= */
+const PIPE=[
+  [['Frame sampled','Lấy mẫu khung hình'],['1 fps from gate-01 · 1920×1080','1 fps từ camera cổng-01 · 1920×1080'],'edge'],
+  [['Tier-1 detector','Bộ phát hiện tầng 1'],['YOLO-class, INT8 TensorRT · 25 ms · spoil_heap 0.93, tarpaulin 0.11','Họ YOLO, INT8 TensorRT · 25 ms · đống_đất 0,93, bạt_phủ 0,11'],'edge'],
+  [['Privacy pass','Bước bảo vệ riêng tư'],['2 faces, 1 plate blurred irreversibly before upload','2 khuôn mặt, 1 biển số làm mờ vĩnh viễn trước khi tải lên'],'edge'],
+  [['Temporal filter','Bộ lọc thời gian'],['8 of 10 frames non-compliant over 5 min → candidate confirmed','8/10 khung hình vi phạm trong 5 phút → xác nhận nghi vấn'],'edge'],
+  [['Upload','Tải lên'],['4 keyframes + 10 s clip · 1.4 MB · store-and-forward','4 khung hình chính + video 10 giây · 1,4 MB · lưu rồi chuyển'],'link'],
+  [['Tier-2 adjudication','Phán xét tầng 2'],['FPT AI Vision Agents · structured output · "stockpile fully uncovered" p=0.94','FPT AI Vision Agents · đầu ra có cấu trúc · "bãi vật liệu hoàn toàn không che" p=0,94'],'cloud'],
+  [['Calibration','Hiệu chuẩn'],['temperature-scaled · 0.94 > 0.90 → finding (not abstention)','hiệu chỉnh nhiệt độ · 0,94 > 0,90 → vi phạm (không từ chối kết luận)'],'cloud'],
+  [['Evidence pack','Gói bằng chứng'],['frames + SHA-256 + model versions + met state, chained to previous pack','khung hình + SHA-256 + phiên bản mô hình + trạng thái khí tượng, nối chuỗi với gói trước'],'cloud'],
+  [['WARDEN agent','Tác tử WARDEN'],['clause Decree 16/2022 Art.16 · exposure 15 to 20M VND · re-check in 30 min','điều khoản Nghị định 16/2022 Điều 16 · mức phạt 15 đến 20 triệu · kiểm tra lại sau 30 phút'],'cloud']];
+let pipeN=0,pipeT=null;
+function renderPipe(){
+  $('#pipe').innerHTML=PIPE.map((s,i)=>`
+    <div style="display:grid;grid-template-columns:22px 1fr;gap:10px;opacity:${i<pipeN?1:.28};transition:opacity .3s;margin-bottom:9px">
+      <div style="text-align:center">
+        <div style="width:20px;height:20px;border-radius:50%;border:2px solid ${i<pipeN?C.teal:C.line2};background:${i<pipeN?C.teal:'transparent'};color:#ffffff;font-size:10px;font-weight:700;line-height:17px">${i<pipeN?'✓':''}</div>
+        ${i<PIPE.length-1?`<div style="width:2px;height:16px;background:${i<pipeN-1?C.teal:C.line2};margin:2px auto"></div>`:''}</div>
+      <div><div style="font-size:13px;font-weight:600">${tv(s[0])}
+        <span style="font-size:10px;color:var(--dim);border:1px solid var(--line2);border-radius:4px;padding:1px 5px;margin-left:6px">${s[2]}</span></div>
+        <div style="font-size:12px;color:var(--mid)">${tv(s[1])}</div></div></div>`).join('');
+}
+document.addEventListener('click',e=>{
+  if(e.target.id==='runpipe'){clearInterval(pipeT);pipeN=0;renderPipe();e.target.disabled=true;
+    pipeT=setInterval(()=>{pipeN++;renderPipe();if(pipeN>=PIPE.length){clearInterval(pipeT);$('#runpipe').disabled=false;}},420);}
+  if(e.target.id==='resetpipe'){clearInterval(pipeT);pipeN=0;renderPipe();$('#runpipe').disabled=false;}
+});
+function drawHyst(){
+  const raw=[0,0,1,0,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0];
+  const w=420,h=132,pl=52,pt=12,pb=22;
+  const s=el('svg',{viewBox:`0 0 ${w} ${h}`,width:'100%',style:'display:block;margin-top:10px'});
+  const bw=(w-pl-8)/raw.length; let state=0,states=[],win=[];
+  raw.forEach(v=>{win.push(v);if(win.length>10)win.shift();const sum=win.reduce((a,b)=>a+b,0);
+    if(!state&&sum>=7)state=1;else if(state&&sum<=3)state=0;states.push(state);});
+  raw.forEach((v,i)=>el('rect',{x:pl+i*bw,y:pt+(v?0:14),width:bw-1.5,height:12,fill:v?C.red:C.line2,opacity:v?.75:.6,rx:2},s));
+  states.forEach((v,i)=>el('rect',{x:pl+i*bw,y:pt+46+(v?0:14),width:bw-1.5,height:12,fill:v?C.red:C.green,opacity:.85,rx:2},s));
+  el('text',{x:pl-8,y:pt+11,fill:C.dim,'font-size':9.5,'text-anchor':'end'},s).textContent=t('vis.raw');
+  el('text',{x:pl-8,y:pt+57,fill:C.dim,'font-size':9.5,'text-anchor':'end'},s).textContent=t('vis.filt');
+  el('text',{x:pl,y:h-6,fill:C.dim,'font-size':9},s).textContent=t('vis.frames');
+  $('#hyst').innerHTML=''; $('#hyst').appendChild(s);
+}
+const OPROWS=[
+  [['L1 Enclosure','L1 Che chắn'],['barrier segmentation, gap detection','phân vùng hàng rào, phát hiện khe hở'],['is the perimeter continuous?','hàng rào có liên tục không?'],'0.92','0.80',1],
+  [['L2 Covering','L2 Che phủ'],['tarpaulin over spoil; truck bed at gate','bạt phủ đống đất; thùng xe tại cổng'],['fully covered or only partially?','che kín hay chỉ che một phần?'],'0.90','0.75',1],
+  [['L3 Spraying','L3 Phun nước'],['spray plume, wet-surface reflectance','luồng phun, độ phản xạ bề mặt ướt'],['is water reaching the active area?','nước có tới khu vực đang thi công không?'],'0.85','0.55',2],
+  [['L4 Gate control','L4 Kiểm soát cổng'],['wash bay use, road apron soiling','sử dụng bồn rửa, vệt bẩn trên đường'],['did this vehicle use the wash bay?','xe này có rửa bánh trước khi ra không?'],'0.88','0.60',2],
+  [['L5 Timing','L5 Thời điểm'],['activity class × timestamp vs risk band','loại hoạt động × mốc thời gian so với ngưỡng rủi ro'],['a join, not perception','phép nối dữ liệu, không phải nhận diện'],'0.95','0.90',1]];
+function drawOp(){
+  $('#oprows').innerHTML=OPROWS.map(r=>`<tr><td><b>${tv(r[0])}</b></td>
+    <td><span class="pill ${r[5]===1?'p-lo':'p-md'}">${(LANG==='en'?'P':'GĐ')}${r[5]}</span></td>
+    <td style="color:var(--mid)">${tv(r[1])}</td><td style="color:var(--mid)">${tv(r[2])}</td>
+    <td class="mono" style="color:${+r[3]>=.9?C.green:C.amber}">${num(r[3])}</td><td class="mono" style="color:var(--mid)">${num(r[4])}</td></tr>`).join('');
+}
+
+/* ================= DISTRICT ================= */
+const SITES=[
+  {id:'HN-CG-0412',n:['Trần Duy Hưng mixed-use','Tổ hợp Trần Duy Hưng'],x:250,y:170,s:78,area:'2,400 m²',last:['L2 · 14:22 today','L2 · 14:22 hôm nay'],ph:'ph.exc'},
+  {id:'HN-CG-0388',n:['Nguyễn Khánh Toàn tower','Toà nhà Nguyễn Khánh Toàn'],x:130,y:105,s:91,area:'1,100 m²',last:null,ph:'ph.fin'},
+  {id:'HN-CG-0455',n:['Cầu Giấy road widening','Mở rộng đường Cầu Giấy'],x:340,y:250,s:54,area:'6,800 m²',last:['L1 · 2 d ago','L1 · 2 ngày trước'],ph:'ph.earth'},
+  {id:'HN-CG-0401',n:['Dịch Vọng housing block','Khu nhà ở Dịch Vọng'],x:170,y:255,s:83,area:'3,200 m²',last:['L4 · 6 d ago','L4 · 6 ngày trước'],ph:'ph.str'},
+  {id:'HN-CG-0470',n:['Xuân Thủy metro works','Công trường metro Xuân Thủy'],x:335,y:118,s:66,area:'4,400 m²',last:['L3 · 9 h ago','L3 · 9 giờ trước'],ph:'ph.mat'}];
+const NODE={x:225,y:255,n:'N-02'};
+let anomOn=false, sel=null;
+const scoreColor=s=>s>=85?C.green:s>=70?C.amber:C.red;
+function cand(){
+  const from=50,half=38;
+  return SITES.map(st=>{const dx=st.x-NODE.x,dy=NODE.y-st.y;
+    const b=(Math.atan2(dx,dy)*180/Math.PI+360)%360, d=Math.hypot(dx,dy);
+    const off=Math.abs(((b-from+540)%360)-180), inC=off<=half&&d<=200;
+    return {...st,post:inC?Math.max(.05,(1-off/half*.55)*(1-d/300)):0,inC,d:Math.round(d)};
+  }).filter(x=>x.inC).sort((a,b)=>b.post-a.post);
+}
+function drawDMap(){
+  const W=430,H=320;
+  const s=el('svg',{viewBox:`0 0 ${W} ${H}`,width:'100%',style:'display:block'});
+  el('rect',{x:0,y:0,width:W,height:H,fill:'#f3f7fd',rx:10},s);
+  [[0,140,W,140],[0,215,W,215],[110,0,110,H],[290,0,290,H]].forEach(([x1,y1,x2,y2])=>
+    el('line',{x1,y1,x2,y2,stroke:'#1c2b25','stroke-width':7,'stroke-linecap':'round'},s));
+  if(anomOn){
+    const from=50,half=38,R=200;
+    const pt=(a,r)=>[NODE.x+Math.sin(a*Math.PI/180)*r,NODE.y-Math.cos(a*Math.PI/180)*r];
+    const [x1,y1]=pt(from-half,R),[x2,y2]=pt(from+half,R);
+    const g=el('radialGradient',{id:'cg',cx:'50%',cy:'50%',r:'50%'},s);
+    el('stop',{offset:'0%','stop-color':C.amber,'stop-opacity':.4},g);
+    el('stop',{offset:'100%','stop-color':C.amber,'stop-opacity':.04},g);
+    el('path',{d:`M${NODE.x},${NODE.y} L${x1},${y1} A${R},${R} 0 0,1 ${x2},${y2} Z`,fill:'url(#cg)',stroke:C.amber,'stroke-dasharray':'4 3','stroke-opacity':.55},s);
+    el('text',{x:NODE.x+62,y:NODE.y-152,fill:C.amber,'font-size':9.5},s).textContent=t('dis.cone');
+  }
+  el('circle',{cx:NODE.x,cy:NODE.y,r:6,fill:anomOn?C.amber:C.blue},s);
+  if(anomOn){const c=el('circle',{cx:NODE.x,cy:NODE.y,r:6,fill:'none',stroke:C.amber,'stroke-width':2},s);
+    el('animate',{attributeName:'r',values:'6;20;6',dur:'1.8s',repeatCount:'indefinite'},c);
+    el('animate',{attributeName:'opacity',values:'.9;0;.9',dur:'1.8s',repeatCount:'indefinite'},c);}
+  el('text',{x:NODE.x+11,y:NODE.y+4,fill:anomOn?C.amber:C.blue,'font-size':9.5},s).textContent=NODE.n;
+  const cs=anomOn?cand():[];
+  SITES.forEach(st=>{
+    const inCone=cs.some(c=>c.id===st.id);
+    const g=el('g',{style:'cursor:pointer'},s);
+    if(sel===st.id)el('circle',{cx:st.x,cy:st.y,r:17,fill:'none',stroke:C.teal,'stroke-width':1.5},g);
+    el('rect',{x:st.x-9,y:st.y-9,width:18,height:18,rx:4,fill:scoreColor(st.s),opacity:inCone?1:.62,stroke:inCone?'#fff':'none','stroke-width':1.2,'stroke-opacity':.6},g);
+    el('text',{x:st.x,y:st.y+3.5,fill:'#ffffff','font-size':9,'font-weight':'700','text-anchor':'middle'},g).textContent=st.s;
+    g.addEventListener('click',()=>{sel=st.id;drawDMap();renderSites();detail(st);});
+    g.addEventListener('mouseenter',e=>showTT(e,`<b>${tv(st.n)}</b><br>${st.id} · ${t(st.ph)}<br>${LANG==='en'?'score':'điểm'} <b style="color:${scoreColor(st.s)}">${st.s}</b>`));
+    g.addEventListener('mousemove',moveTT); g.addEventListener('mouseleave',hideTT);});
+  el('text',{x:12,y:H-12,fill:C.dim,'font-size':9},s).textContent=t('dis.legend');
+  $('#dmap').innerHTML=''; $('#dmap').appendChild(s);
+}
+function renderSites(){
+  if(anomOn){
+    const c=cand(), tot=c.reduce((a,b)=>a+b.post,0)||1;
+    $('#canhd').textContent=t('dis.rank');
+    $('#canhint').innerHTML=`${t('dis.anom')} ${c.length} ${t('dis.anom2')}`;
+    $('#thlast').textContent=t('th.post');
+    $('#sites').innerHTML=c.map(st=>`<tr data-id="${st.id}" class="${sel===st.id?'sel':''}">
+      <td><b>${st.id}</b><br><span style="color:var(--dim);font-size:11.5px">${tv(st.n)}</span></td>
+      <td class="mono" style="color:${scoreColor(st.s)}">${st.s}</td>
+      <td class="mono"><b>${(st.post/tot*100).toFixed(0)}%</b></td></tr>`).join('')
+      +`<tr><td colspan="3" style="color:var(--dim);font-size:11.5px;padding-top:10px">${t('dis.hyp')}</td></tr>`;
+  }else{
+    $('#canhd').textContent=t('dis.reg');
+    $('#canhint').textContent=t('dis.noanom');
+    $('#thlast').textContent=t('th.last');
+    $('#sites').innerHTML=SITES.map(st=>`<tr data-id="${st.id}" class="${sel===st.id?'sel':''}">
+      <td><b>${st.id}</b><br><span style="color:var(--dim);font-size:11.5px">${tv(st.n)}</span></td>
+      <td class="mono" style="color:${scoreColor(st.s)}">${st.s}</td>
+      <td style="color:var(--mid)">${st.last?tv(st.last):t('d.none30')}</td></tr>`).join('');
+  }
+  $$('#sites tr[data-id]').forEach(tr=>tr.onclick=()=>{sel=tr.dataset.id;drawDMap();renderSites();detail(SITES.find(s=>s.id===sel));});
+}
+function detail(st){
+  if(!st){$('#detail').textContent=t('dis.selnone');return;}
+  const c=anomOn?cand().find(x=>x.id===st.id):null;
+  $('#detail').innerHTML=`<div style="font-size:15px;font-weight:650;color:var(--ink);margin-bottom:2px">${tv(st.n)}</div>
+    <div class="mono" style="font-size:11.5px;color:var(--dim);margin-bottom:12px">${st.id}</div>
+    <dl class="kv"><dt>${t('d.phase')}</dt><dd>${t(st.ph)}</dd>
+      <dt>${t('d.area')}</dt><dd>${num(st.area)}</dd>
+      <dt>${t('d.score')}</dt><dd style="color:${scoreColor(st.s)}"><b>${st.s}</b>/100</dd>
+      <dt>${t('th.last')}</dt><dd>${st.last?tv(st.last):t('d.none30')}</dd>
+      ${c?`<dt>${t('d.dist')}</dt><dd>${Math.round(c.d*2.4)} m</dd><dt>${t('d.incone')}</dt><dd style="color:${C.amber}">${t('d.yes')}</dd>`:''}</dl>
+    <div class="note">${t('d.note')}</div>`;
+}
+document.addEventListener('click',e=>{
+  if(e.target.id==='anom'){anomOn=true;sel='HN-CG-0412';drawDMap();renderSites();detail(SITES[0]);}
+  if(e.target.id==='clearanom'){anomOn=false;sel=null;drawDMap();renderSites();detail(null);}
+});
+
+/* ================= REPLAY ================= */
+const STEPS=[
+  [0,['Emission begins','Bụi bắt đầu phát tán'],['Spoil heap uncovered during a load-out; NE wind 4.8 m/s across the open face.','Đống đất thải không che khi đang bốc dỡ; gió đông bắc 4,8 m/s thổi qua mặt hở.'],['physical event: nothing has detected it yet','sự kiện vật lý, chưa có gì phát hiện ra']],
+  [45,['DETECT · anomaly confirmed','PHÁT HIỆN · xác nhận bất thường'],['Downwind fence-line node: PM10 residual crosses the site 2σ threshold after background and diurnal baseline removal.','Trạm hàng rào cuối gió: phần dư PM10 vượt ngưỡng 2σ của công trường sau khi trừ nền và chu kỳ ngày–đêm.'],['M3 stage 1 · STL decomposition + neighbour regression','M3 bước 1 · phân rã STL + hồi quy trạm lân cận']],
+  [70,['ASSESS · candidates ranked','ĐÁNH GIÁ · xếp hạng nghi vấn'],['Upwind cone built from the measured wind vector; Gaussian back-calculation eliminates two implausible sources; the CBPF fingerprint puts HN-CG-0412 top of three surviving candidates at 37% posterior, suggestive, not conclusive.','Dựng nón ngược gió từ vectơ gió đo được; phép tính ngược Gauss loại hai nguồn bất khả thi; dấu vân tay CBPF đưa HN-CG-0412 lên đầu trong ba ứng viên còn lại với xác suất hậu nghiệm 37%, có tính gợi ý, chưa phải kết luận.'],['M3 stages 2–4','M3 bước 2–4']],
+  [90,['Visual corroboration requested','Yêu cầu đối chứng bằng hình ảnh'],['The matching 5-minute window is pulled from gate-01 and yard-02. Tier-1: spoil_heap 0.93, tarpaulin 0.11, 8 of 10 frames non-compliant.','Cửa sổ 5 phút tương ứng được lấy từ camera cổng-01 và sân-02. Tầng 1: đống_đất 0,93, bạt_phủ 0,11, 8/10 khung hình vi phạm.'],['M2 Tier 1 · edge, INT8 TensorRT','M2 tầng 1 · tại biên, INT8 TensorRT']],
+  [102,['Adjudicated','Đã phán xét'],['Tier-2 confirms "stockpile fully uncovered, no sheeting present" at p = 0.94, above the 0.90 finding threshold, so no abstention.','Tầng 2 xác nhận "bãi vật liệu hoàn toàn không che, không có bạt phủ" với p = 0,94, trên ngưỡng 0,90 nên không từ chối kết luận.'],['FPT AI Vision Agents','FPT AI Vision Agents']],
+  [110,['Evidence sealed','Niêm phong bằng chứng'],['Four keyframes and a 10 s clip hashed, chained to the previous pack, faces and plates already blurred at the edge.','Bốn khung hình chính và video 10 giây được băm, nối chuỗi với gói trước, khuôn mặt và biển số đã làm mờ ngay tại biên.'],['SHA-256 chain · model versions recorded','Chuỗi SHA-256 · ghi lại phiên bản mô hình']],
+  [120,['ACT · contractor notified','HÀNH ĐỘNG · thông báo nhà thầu'],['WARDEN sends the finding with the clause engaged (Decree 16/2022 Art.16), an estimated 15 to 20M VND exposure band, and a re-check in 30 minutes.','WARDEN gửi vi phạm kèm điều khoản liên quan (Nghị định 16/2022 Điều 16), khoảng mức phạt ước tính 15 đến 20 triệu đồng, và hẹn kiểm tra lại sau 30 phút.'],['FPT AI Agents → Zalo ZNS','FPT AI Agents → Zalo ZNS']],
+  [420,['Crew responds','Đội thi công phản hồi'],['Site acknowledges on Zalo; the yard team sheets the stockpile.','Công trường xác nhận trên Zalo; tổ sân phủ bạt đống vật liệu.'],['human action: the fast part of the loop','hành động của con người, phần nhanh nhất trong vòng lặp']],
+  [900,['VERIFY','KIỂM CHỨNG'],['Re-check at t+15 min: tarpaulin present at 0.96 confidence. Case closed as remediated. Nothing is filed with any authority.','Kiểm tra lại ở t+15 phút: đã có bạt phủ với độ tin cậy 0,96. Đóng hồ sơ là đã khắc phục. Không gửi gì cho cơ quan nhà nước.'],['M2 re-check · human-in-the-loop gate not triggered','M2 kiểm lại · chưa kích hoạt cổng người kiểm duyệt']]];
+const CHAT=[
+  [120,['PreventAir · WARDEN','PreventAir · WARDEN'],
+   ['<b>Finding · L2 covering</b><br>Stockpile at the north yard is uncovered. Downwind PM10 at your fence line is 2.4σ above baseline.<br><br>Clause at risk: <b>Decree 16/2022 Art.16</b>, est. 15–20M VND.<br>Suggested fix: cover the stockpile. We re-check this camera in <b>30 minutes</b>.',
+    '<b>Vi phạm · L2 che phủ</b><br>Bãi vật liệu ở sân bắc không được che. PM10 cuối gió tại hàng rào cao hơn đường nền 2,4σ.<br><br>Điều khoản có nguy cơ: <b>Nghị định 16/2022 Điều 16</b>, ước tính 15–20 triệu đồng.<br>Đề xuất khắc phục: phủ bạt bãi vật liệu. Chúng tôi sẽ kiểm tra lại camera này sau <b>30 phút</b>.'],
+   [['View evidence','Acknowledge','Dispute'],['Xem bằng chứng','Đã tiếp nhận','Khiếu nại']],0],
+  [430,['Site manager','Chỉ huy công trường'],['Đã nhận. Cho đội che bạt ngay.','Đã nhận. Cho đội che bạt ngay.'],null,1],
+  [905,['PreventAir · WARDEN','PreventAir · WARDEN'],
+   ['<b>Verified · resolved in 13 min</b><br>Tarpaulin detected at 0.96 confidence. Case closed. No escalation, nothing filed.',
+    '<b>Đã kiểm chứng · khắc phục trong 13 phút</b><br>Phát hiện bạt phủ với độ tin cậy 0,96. Đóng hồ sơ. Không leo thang, không gửi hồ sơ đi đâu.'],null,0]];
+let rt=null, now=0, playing=false, speed=1, dwellUntil=0;
+const KF=[0,45,70,90,102,110,120,420,900];
+const PHASES=[['rp.ph1',0],['rp.ph2',70],['rp.ph3',120],['rp.ph4',900]];
+function renderTL(){
+  let cur=-1; STEPS.forEach((s,i)=>{ if(now>=s[0]) cur=i; });
+  $('#tl').innerHTML=STEPS.map((s,i)=>{
+    const lbl=s[0]<60?`${s[0]} s`:(LANG==='en'?`${Math.round(s[0]/60)} min`:`${Math.round(s[0]/60)} phút`);
+    return `<div class="step ${now>=s[0]?'on':''} ${i===cur?'cur':''}"><div class="tm">t + ${lbl}</div>
+      <div class="hd">${tv(s[1])}</div><div class="bd">${tv(s[2])}</div><div class="tech">${tv(s[3])}</div></div>`;}).join('');
+  const pb=$('#progBar'); if(pb) pb.style.width=Math.min(100,now/960*100)+'%';
+  const ph=$('#phases');
+  if(ph) ph.innerHTML=PHASES.map(([k,t0],i)=>{
+    const nxt=PHASES[i+1]?PHASES[i+1][1]:1e9;
+    const cls=now>=nxt?'done':(now>=t0?'act':'');
+    return `<div class="phase ${cls}">${now>=nxt?'✓ ':''}${t(k)}</div>`;}).join('');
+}
+function renderChat(){
+  const el=$('#chat'); if(!el) return;
+  el.innerHTML=CHAT.filter(c=>now>=c[0]).map(c=>`
+    <div class="msg ${c[4]?'me':''}"><div class="from">${tv(c[1])}</div>${tv(c[2])}
+    ${c[3]?`<div class="btns">${tv(c[3]).map((b,i)=>`<span class="${i===1?'pri':''}">${b}</span>`).join('')}</div>`:''}</div>`).join('');
+}
+function drawPM(){
+  const w=430,h=150,pl=32,pt=12,pb=24;
+  const s=el('svg',{viewBox:`0 0 ${w} ${h}`,width:'100%',style:'display:block'});
+  const N=120,series=[];
+  for(let i=0;i<N;i++){const tt2=i*10; let v=18+Math.sin(i/7)*3+Math.cos(i/3.1)*2;
+    if(tt2<900)v+=Math.max(0,Math.min(1,(tt2-20)/90))*46*Math.exp(-Math.max(0,tt2-560)/260);
+    series.push({t:tt2,v});}
+  const X=i=>pl+i/(N-1)*(w-pl-8), Y=v=>pt+(1-v/72)*(h-pt-pb);
+  [0,20,40,60].forEach(v=>{el('line',{x1:pl,x2:w-8,y1:Y(v),y2:Y(v),stroke:C.line},s);
+    el('text',{x:pl-6,y:Y(v)+3.5,fill:C.dim,'font-size':9,'text-anchor':'end'},s).textContent=v;});
+  el('line',{x1:pl,x2:w-8,y1:Y(34),y2:Y(34),stroke:C.amber,'stroke-dasharray':'4 3','stroke-opacity':.7},s);
+  el('text',{x:w-10,y:Y(34)-4,fill:C.amber,'font-size':9,'text-anchor':'end'},s).textContent=t('rp.thr');
+  const vis=series.filter(p=>p.t<=Math.max(now,1));
+  if(vis.length>1){el('path',{d:'M'+vis.map(p=>`${X(series.indexOf(p))},${Y(p.v)}`).join(' L'),fill:'none',stroke:C.teal,'stroke-width':1.8},s);
+    const last=vis[vis.length-1]; el('circle',{cx:X(series.indexOf(last)),cy:Y(last.v),r:3.5,fill:C.teal},s);}
+  const marks=LANG==='en'?[[45,'detect'],[120,'alert'],[900,'verify']]:[[45,'phát hiện'],[120,'cảnh báo'],[900,'kiểm chứng']];
+  marks.forEach(([tm,lb],mi)=>{if(now>=tm){const i=Math.round(tm/10);
+    el('line',{x1:X(i),x2:X(i),y1:pt,y2:h-pb,stroke:C.amber,'stroke-opacity':.4,'stroke-dasharray':'2 3'},s);
+    el('text',{x:X(i)+3,y:pt+9+(mi===1?11:0),fill:C.amber,'font-size':8.5},s).textContent=lb;}});
+  el('text',{x:pl,y:h-7,fill:C.dim,'font-size':9},s).textContent=t('rp.pmx');
+  $('#pm').innerHTML=''; $('#pm').appendChild(s);
+}
+function setT(v){now=v;renderTL();renderChat();drawPM();renderCamRp();
+  const mm=Math.floor(now/60), ss=now%60;
+  $('#clock').textContent = now<60 ? `t + ${now} s` : (LANG==='en'?`t + ${mm} min ${ss} s`:`t + ${mm} phút ${ss} giây`);
+  const base=new Date(2026,7,12,14,22,0); base.setSeconds(base.getSeconds()+now);
+  const pc=$('#phclock'); if(pc) pc.textContent=String(base.getHours()).padStart(2,'0')+':'+String(base.getMinutes()).padStart(2,'0');}
+function rateAt(x){ return x<140 ? 0.75 : (x<430 ? 5 : 4.2); }
+function playBtn(){ $('#play').textContent = playing ? t('rp.pause') : t('rp.play'); }
+function stopPlay(){ playing=false; clearInterval(rt); rt=null; playBtn(); }
+function startPlay(){
+  if(now>=960) setT(0);
+  playing=true; playBtn(); clearInterval(rt);
+  dwellUntil=performance.now()+900/speed;
+  rt=setInterval(()=>{
+    if(performance.now()<dwellUntil) return;
+    const nxt=now+rateAt(now)*speed;
+    const kf=KF.find(k=>k>now && k<=nxt);
+    if(kf!==undefined){ setT(kf); dwellUntil=performance.now()+1150/speed; }
+    else setT(Math.min(960,nxt));
+    if(now>=960) stopPlay();
+  },60);
+}
+function stepOnce(){ stopPlay(); const kf=KF.find(k=>k>now); setT(kf===undefined?960:kf); }
+function drawSpeed(){ const el=$('#spd'); if(!el)return;
+  el.innerHTML=[0.5,1,2].map(v=>`<button data-s="${v}" class="${speed===v?'on':''}">${num(String(v))}×</button>`).join(''); }
+document.addEventListener('click',e=>{
+  if(e.target.id==='play'){ playing?stopPlay():startPlay(); }
+  if(e.target.id==='stepBtn'){ stepOnce(); }
+  if(e.target.id==='rewind'){ stopPlay(); setT(0); }
+  const sb=e.target.closest('#spd button');
+  if(sb){ speed=+sb.dataset.s; drawSpeed(); if(playing){ startPlay(); } }
+});
+
+/* ================= ARCH ================= */
+const PLANES=[
+  [['Edge · on site','Biên · tại công trường'],['on-prem','tại chỗ'],[
+    ['Site CCTV (RTSP/ONVIF): mandated by Plan 372','Camera công trường (RTSP/ONVIF), bắt buộc theo Kế hoạch 372'],
+    ['2× fence-line PM nodes','2 trạm đo PM tại hàng rào'],
+    ['Jetson-class box · 67 INT8 TOPS · 7–25 W','Thiết bị họ Jetson · 67 INT8 TOPS · 7–25 W'],
+    ['1 fps sampling · INT8 detector','Lấy mẫu 1 fps · bộ phát hiện INT8'],
+    ['Face + plate blur before upload','Làm mờ mặt + biển số trước khi tải lên'],
+    ['72 h store-and-forward','Đệm lưu-rồi-chuyển 72 giờ'],
+    ['Tamper / occlusion detection','Phát hiện can thiệp / che khuất']]],
+  [['Ingest','Nạp dữ liệu'],['FPT Cloud','FPT Cloud'],[
+    ['Kafka topics + schema registry','Chủ đề Kafka + đăng ký lược đồ'],
+    ['TimescaleDB + PostGIS','TimescaleDB + PostGIS'],
+    ['Object store with lifecycle expiry','Kho đối tượng có tự động hết hạn'],
+    ['Dead-letter queue + backfill','Hàng đợi lỗi + nạp bù']]],
+  [['Model','Mô hình'],['FPT AI Factory','FPT AI Factory'],[
+    ['M1 Dispersion Risk Forecast','M1 Dự báo rủi ro phát tán'],
+    ['M2 Visual Compliance Engine','M2 Bộ kiểm tra tuân thủ bằng hình ảnh'],
+    ['M3 Source Attribution','M3 Quy trách nhiệm nguồn thải'],
+    ['M4 Behaviour & exposure','M4 Hành vi & mức phạt'],
+    ['Feature store · model registry','Kho đặc trưng · đăng ký mô hình'],
+    ['Champion/challenger · drift monitors','Champion/challenger · giám sát trôi dạt']]],
+  [['Decision','Quyết định'],['FPT AI Agents','FPT AI Agents'],[
+    ['ADVISOR: T−18 h schedule advisory','ADVISOR, khuyến nghị lịch trước 18 giờ'],
+    ['WARDEN: real-time violation','WARDEN, vi phạm theo thời gian thực'],
+    ['COACH: remediation guidance','COACH, hướng dẫn khắc phục'],
+    ['Tools: forecast · site state · evidence · fine exposure · ZNS','Công cụ: dự báo · trạng thái công trường · bằng chứng · mức phạt · ZNS'],
+    ['Guardrails: no autonomous filing · HITL gate','Rào chắn: không tự gửi hồ sơ · cổng người duyệt']]],
+  [['Experience','Trải nghiệm'],['FPT AI Chat / Zalo','FPT AI Chat / Zalo'],[
+    ['Contractor dashboard','Bảng điều khiển nhà thầu'],
+    ['Regulator console','Bảng điều khiển cơ quan quản lý'],
+    ['Public transparency page','Trang minh bạch công khai'],
+    ['Zalo OA + ZNS templates','Zalo OA + mẫu ZNS']]]];
+const ARCH=[
+  [['Tier-2 visual adjudication','Phán xét hình ảnh tầng 2'],['FPT AI Vision Agents (FPT AI Vision family), solution name <i>Video Compliance</i>','FPT AI Vision Agents (họ FPT AI Vision), tên giải pháp <i>Video Compliance</i>'],'p-md',['confirm ingestion & latency','cần xác nhận cách nạp video & độ trễ']],
+  [['Schedules, permits, manifests → structured data','Lịch thi công, giấy phép, phiếu vận chuyển → dữ liệu có cấu trúc'],['FPT AI Read','FPT AI Read'],'p-lo',['high','cao']],
+  [['Advisor / Warden / Coach agents','Tác tử Advisor / Warden / Coach'],['FPT AI Agents: Agent Studio, Workflows, Memory, Guardrails','FPT AI Agents, Agent Studio, Workflows, Memory, Guardrails'],'p-lo',['high','cao']],
+  [['Remediation guidance and crew micro-training','Hướng dẫn khắc phục và đào tạo nhanh cho đội thi công'],['FPT AI Mentor','FPT AI Mentor'],'p-md',['medium','trung bình']],
+  [['Delivery channel','Kênh gửi tin'],['FPT AI Chat fronting a Zalo OA with ZNS templates','FPT AI Chat đứng trước Zalo OA với mẫu ZNS'],'p-lo',['high','cao']],
+  [['Training, registry, serving','Huấn luyện, đăng ký, phục vụ suy luận'],['FPT AI Factory: AI Studio, Model Hub, AI Inference on H100/H200','FPT AI Factory, AI Studio, Model Hub, AI Inference trên H100/H200'],'p-lo',['high','cao']],
+  [['Contractor identity at onboarding','Định danh nhà thầu khi đăng ký'],['FPT AI eKYC','FPT AI eKYC'],'p-n',['phase 2','giai đoạn 2']]];
+function drawArch(){
+  $('#planes').innerHTML=PLANES.map((p,i)=>`
+    <div class="plane"><div class="ph"><span class="pn" style="color:${C.teal}">${tv(p[0])}</span><span class="fpt">${tv(p[1])}</span></div>
+      <div class="boxes">${p[2].map(b=>`<span class="box">${tv(b)}</span>`).join('')}</div></div>
+    ${i<PLANES.length-1?'<div class="arrow">▼</div>':''}`).join('');
+  $('#archrows').innerHTML=ARCH.map(r=>`<tr><td>${tv(r[0])}</td><td>${tv(r[1])}</td><td><span class="pill ${r[2]}">${tv(r[3])}</span></td></tr>`).join('');
+}
+
+
+/* ================= CCTV wiring ================= */
+const CAMS=[['CAM-02 · NORTH YARD','CAM-02 · SÂN BẮC','yard'],
+            ['CAM-01 · GATE','CAM-01 · CỔNG','gate'],
+            ['CAM-03 · PERIMETER','CAM-03 · HÀNG RÀO','perim']];
+function bx(key,label,conf,state){return Object.assign({},SC.BOX[key],{label,conf,state});}
+
+function detsFor(st,view){
+  const d=[];
+  const show=k=>view==='all'||view===k;
+  if(show('yard')){
+    d.push(st.covered?bx('heap','tarpaulin',0.96,'ok'):bx('heap','spoil_heap',0.93,'bad'));
+    if(st.dust>0.32) d.push(bx('dustzone','visible_dust',Math.min(0.94,0.55+st.dust*0.45),'bad'));
+    if(st.spraying) d.push(bx('mist','spray_plume',0.74,'ok'));
+  }
+  if(show('perim')) d.push(bx('fence','perimeter_barrier',0.97,'ok'));
+  if(show('gate')){
+    d.push(st.sheeted?bx('truck','load_sheeted',0.88,'ok'):bx('truck','load_uncovered',0.71,'warn'));
+    d.push(bx('wash','wheel_wash_bay',0.79,'ok'));
+  }
+  return d;
+}
+function layerOf(l){return {spoil_heap:'L2',tarpaulin:'L2',visible_dust:'L2',perimeter_barrier:'L1',
+  load_sheeted:'L2',load_uncovered:'L2',wheel_wash_bay:'L4',spray_plume:'L3'}[l]||'';}
+
+function drawDets(host,list){
+  if(!host)return;
+  host.innerHTML=list.map(b=>{
+    const c=SC.COL[b.state];
+    return `<div class="det"><span class="cls" style="color:${c}">${b.label}</span>
+      <span class="bar"><i style="width:${(b.conf*100).toFixed(0)}%;background:${c}"></i></span>
+      <span class="cf">${num(b.conf.toFixed(2))}</span><span class="lay">${layerOf(b.label)}</span></div>`;}).join('');
+}
+function setBanner(el,kind,text){
+  if(!el)return; el.className='banner '+kind; el.lastElementChild.textContent=text;
+  el.style.opacity=text?1:0;
+}
+
+/* ---- vision tab ---- */
+const camState={covered:false,spraying:false,sheeted:false};
+function renderCamMain(){
+  const st={covered:camState.covered,spraying:camState.spraying,sheeted:camState.sheeted,
+            dust:camState.covered?0.06:(camState.spraying?0.26:0.62),drift:0.45,
+            time:camState.covered?'14:37:12':'14:22:07',cam:tv([CAMS[0][0],CAMS[0][1]])};
+  const dets=detsFor(st,'all');
+  st.boxes=dets;
+  $('#camMain').innerHTML=SC.frame(st,LANG);
+  drawDets($('#detList'),dets);
+  const bad=dets.some(d=>d.state==='bad');
+  setBanner($('#camBanner'),bad?'bad':'ok',bad?t('cam.bnFind'):t('cam.bnOk'));
+  $('#camCtl').innerHTML=[['covered','cam.cov'],['spraying','cam.spray'],['sheeted','cam.sheet']]
+    .map(([k,key])=>`<button data-c="${k}" class="${camState[k]?'on':''}">${t(key)}</button>`).join('');
+}
+document.addEventListener('click',e=>{const b=e.target.closest('#camCtl button');if(!b)return;
+  camState[b.dataset.c]=!camState[b.dataset.c];renderCamMain();});
+
+/* ---- before / after ---- */
+function renderBA(){
+  const before={covered:false,sheeted:false,dust:0.62,drift:0.45,time:'14:22:07',cam:tv([CAMS[0][0],CAMS[0][1]])};
+  before.boxes=detsFor(before,'all');
+  const after={covered:true,sheeted:true,dust:0.06,drift:0.3,time:'14:37:12',cam:tv([CAMS[0][0],CAMS[0][1]])};
+  after.boxes=detsFor(after,'all').map(b=>b.label==='tarpaulin'?Object.assign({},b,{below:true}):b);
+  $('#baBase').innerHTML=SC.frame(after,LANG);
+  $('#baTop').innerHTML=SC.frame(before,LANG);
+  $('#baL').textContent=t('cam.before'); $('#baR').textContent=t('cam.after');
+  baMove($('#baRange').value);
+}
+function baMove(v){
+  $('#baTop').style.clipPath='inset(0 '+(100-v)+'% 0 0)';
+  $('#baDiv').style.left=v+'%'; $('#baKnob').style.left=v+'%';
+  $('#baL').style.opacity=v<18?0:1; $('#baR').style.opacity=v>82?0:1;
+}
+document.addEventListener('input',e=>{if(e.target.id==='baRange')baMove(e.target.value);});
+
+/* ---- ops tab camera ---- */
+let opsView=0;
+function renderCamOps(){
+  const view=CAMS[opsView][2];
+  const st={covered:false,spraying:false,sheeted:false,dust:0.6,drift:0.45,time:'14:22:07',
+            cam:tv([CAMS[opsView][0],CAMS[opsView][1]])};
+  st.boxes=detsFor(st,view);
+  $('#camOps').innerHTML=SC.frame(st,LANG);
+  const bad=st.boxes.some(b=>b.state==='bad');
+  setBanner($('#opsBanner'),bad?'bad':(st.boxes.some(b=>b.state==='warn')?'warn':'ok'),
+    bad?t('cam.bnFind'):(st.boxes.some(b=>b.state==='warn')?t('cam.bnRev'):t('cam.bnOk')));
+  $('#opsCtl').innerHTML=CAMS.map((c,i)=>`<button data-v="${i}" class="${i===opsView?'on':''}">${tv([c[0],c[1]])}</button>`).join('');
+}
+document.addEventListener('click',e=>{const b=e.target.closest('#opsCtl button');if(!b)return;
+  opsView=+b.dataset.v;renderCamOps();});
+
+/* ---- risk model camera ---- */
+function renderCamSim(p,dir){
+  const st={covered:cState.L2,spraying:cState.L3,sheeted:cState.L2,
+            dust:Math.max(0.04,Math.min(0.95,p*1.05)),
+            drift:Math.sin(((dir+180)%360)*Math.PI/180),
+            time:'13:00:00',cam:LANG==='en'?'CAM-02 · FORECAST 13:00 TOMORROW':'CAM-02 · DỰ BÁO 13:00 NGÀY MAI',boxes:[]};
+  $('#camSim').innerHTML=SC.frame(st,LANG);
+  const kind=p>=.6?'bad':p>=.3?'warn':'ok';
+  setBanner($('#simBanner'),kind,t('cam.bnRisk')+' '+(p*100).toFixed(0)+'% · '+bandName(p));
+}
+
+/* ---- incident replay camera ---- */
+function renderCamRp(){
+  const n=now;
+  const covered=n>=760;
+  const dust=covered?Math.max(0.05,0.62-(n-760)/300):Math.min(0.72,Math.max(0,(n-8)/70));
+  const st={covered,spraying:false,sheeted:true,dust,drift:0.5,
+            cam:tv([CAMS[0][0],CAMS[0][1]]),
+            time:(()=>{const d=new Date(2026,7,12,14,22,0);d.setSeconds(d.getSeconds()+n);
+              return [d.getHours(),d.getMinutes(),d.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');})()};
+  let b=[];
+  if(n>=45&&n<90) b=[Object.assign(bx('dustzone','visible_dust',0.61,'scan'))];
+  else if(n>=90&&n<102) b=[bx('heap','spoil_heap',0.93,'scan'),bx('dustzone','visible_dust',0.86,'scan')];
+  else if(n>=102&&n<760) b=[bx('heap','spoil_heap',0.94,'bad'),bx('dustzone','visible_dust',0.86,'bad'),bx('fence','perimeter_barrier',0.97,'ok')];
+  else if(n>=760) b=[bx('heap','tarpaulin',0.96,'ok'),bx('fence','perimeter_barrier',0.97,'ok')];
+  st.boxes=b;
+  $('#camRp').innerHTML=SC.frame(st,LANG);
+  let kind='warn',txt='';
+  if(n<45) txt='';
+  else if(n<102){kind='warn';txt=t('cam.bnScan');}
+  else if(n<760){kind='bad';txt=t('cam.bnFind');}
+  else if(n<900){kind='warn';txt=t('cam.bnFix');}
+  else {kind='ok';txt=t('cam.bnVer');}
+  setBanner($('#rpBanner'),kind,txt);
+}
+
+/* ================= boot ================= */
+function renderAll(){
+  applyStatic();
+  drawFC(); drawLayers(); drawOpts(); drawEv();
+  renderCamMain(); renderBA(); renderCamOps();
+  drawSimStatic(); calc();
+  if($('#techBtn')){ $('#techBtn').textContent=t(techOpen?'sim.techclose':'sim.tech');
+    $('#techPanel').style.display=techOpen?'block':'none'; }
+  renderPipe(); drawHyst(); drawOp();
+  setT(now); drawSpeed(); playBtn();
+  if($('#stepBtn')) $('#stepBtn').textContent=t('rp.next');
+  if($('#k1band')){ $('#k1band').textContent=bandName(0.71); $('#k1band').className='pill p-hi'; }
+}
+renderAll();
+</script>
+
+<script>
+/* ================= CUSTOMER / ZALO TAB ================= */
+(function(){
+const Z={
+ en:{
+  nav:"Customer view",
+  title:"What the customer actually gets",
+  sub:"The contractor never logs into a dashboard. The whole product is a Zalo conversation. Press play and watch one day run, from an 18-hour advance warning to the record he takes to the next tender.",
+  who:"Mr Tuan, site manager, Trung Hoa site", play:"▶ Run", running:"● Running", replay:"↻ Replay", reset:"Reset",
+  oa:"Official Account · Verified",
+  dayT:"One day in a site manager's life",
+  m:[["YESTERDAY · 15:02","An 18-hour advance warning","No dust yet. The system only says: tomorrow's wind and humidity will turn your excavation shift into a risk."],
+     ["YESTERDAY · 15:06","Mr Tuan moves part of the schedule","Excavation moves to the afternoon. Haulage stays in the morning because the trucks are already booked."],
+     ["TODAY · 08:18","A violation is detected","During the haulage shift, exactly as forecast. Load uncovered, gate misters off."],
+     ["TODAY · 08:19","Remediation guidance","Not a report. Two concrete jobs, who does them, how long each takes."],
+     ["TODAY · 08:29","Fixed in 11 minutes","The camera verifies it. Mr Tuan waits for nobody's approval."],
+     ["END OF MONTH","An environmental compliance record",""]],
+  ctaT:"Without PreventAir", ctaS:"Dust runs all morning. Days later an inspection team arrives, writes it up, fines 15 to 20 million VND. Nobody knows which control failed, so nothing gets fixed.",
+  ctbT:"With PreventAir", ctbS:"The emission stops after 11 minutes. No write-up, no fine, and evidence that the site was compliant.",
+  cap:"The entire product the contractor sees is this conversation. No app to install, no login, no training.",
+  valT:"What the contractor gets back",
+  v:["Fine exposure avoided","Fixed within deadline","Compliance score","Days with no work stoppage"],
+  b1:"PreventAir fee for the month", b2:"Risk value avoided",
+  evT:"Environmental compliance record", ev1:"Environmental compliance record, August 2026",
+  ev2:"4 events, 4 remediations inside the deadline, 0 recorded violations. With images, timelines and timestamps.",
+  ev3:"Download for tender submission",
+  d1:"Yesterday, 15:02", d2:"Today, 08:18", d3:"Today, 08:33", d4:"31 August",
+  a_t:"🌤 Dust risk forecast for tomorrow",
+  a_b:"Tomorrow 08:00 to 11:00, a south-easterly at 3 to 4 m/s blows straight toward the Trung Hoa residential block, humidity 58%. Your block B excavation and your haulage shift both fall in that window.",
+  a_l:["Dust risk: <b>HIGH</b>","If it becomes a violation: <b>15 to 20 million VND</b>","Move excavation to 14:00: <b>costs nothing</b>, schedule unchanged"],
+  a_c:"Apply the suggested reschedule",
+  me1:"Ok, moving excavation to the afternoon. Haulage stays, the trucks are already booked.",
+  ack_t:"✓ Noted", ack_b:"Schedule updated. Tomorrow's overall risk drops from HIGH to MEDIUM. The morning haulage shift is still exposed, so the system will watch the 08:00 to 11:00 window closely.",
+  w_t:"⚠ Dust violation alert", w_b:"Trung Hoa site is emitting above threshold at Gate 2. Camera and sensor both confirm it.",
+  w_l:["<b>L2</b> Haulage load not covered","<b>L3</b> Gate misting system is off"],
+  w_f:"Fix within <b>30 minutes</b> to avoid a recorded violation. Fine exposure: <b>15 to 20 million VND</b>.",
+  w_c:"Open the remediation guide",
+  c_t:"🛠 Two things to do right now",
+  c_1:"Switch on the Gate 2 misting system", c_1s:"Breaker is in the cabinet beside the guard post. About 2 minutes.",
+  c_2:"Cover the load on truck 29H-421.xx before it leaves", c_2s:"Tarpaulins are in the stores, bay 4. About 6 minutes per truck.",
+  c_f:"Tick each one as you finish. No photo needed, the gate camera verifies it for you.",
+  me2:"Both done.",
+  ver_t:"Verifying", ver_b:"Gate 2 camera is re-checking. The fence-line pair is measuring the excess PM10.",
+  ok_t:"✓ Fixed, no violation recorded", ok_b:"Misters on, load covered. Excess PM10 down 94% and back under threshold.",
+  ok_l:["Time to remediation: <b>11 minutes</b> (deadline 30)","Compliance score this month: <b>88 out of 100</b>","Fine exposure avoided: <b>15 to 20 million VND</b>"],
+  r_t:"📄 August 2026 report", r_b:"Trung Hoa site closed the month with 4 events, all 4 remediated inside the deadline and no recorded violations.",
+  r_l:["Fine exposure avoided: <b>35 million VND</b>","Service fee: <b>3.2 million VND</b>","No day lost to a work stoppage"],
+  r_c:"Download the environmental compliance record",
+  mil:"m VND"
+ },
+ vi:{
+  nav:"Khách hàng",
+  title:"Khách hàng thực sự nhận được gì",
+  sub:"Nhà thầu không đăng nhập dashboard nào cả. Toàn bộ sản phẩm là một cuộc trò chuyện Zalo. Bấm chạy để xem trọn một ngày, từ cảnh báo sớm 18 giờ tới hồ sơ mang đi đấu thầu gói tiếp theo.",
+  who:"Anh Tuấn, chỉ huy trưởng công trường Trung Hòa", play:"▶ Chạy", running:"● Đang chạy", replay:"↻ Chạy lại", reset:"Đặt lại",
+  oa:"Official Account · Đã xác thực",
+  dayT:"Một ngày của chỉ huy trưởng",
+  m:[["HÔM QUA · 15:02","Cảnh báo sớm 18 giờ","Chưa có bụi nào cả. Hệ thống chỉ nói: ngày mai gió và độ ẩm sẽ làm ca đào móng của anh thành rủi ro."],
+     ["HÔM QUA · 15:06","Anh Tuấn dời một phần lịch","Dời ca đào sang chiều. Ca vận chuyển vẫn giữ buổi sáng vì hợp đồng xe."],
+     ["HÔM NAY · 08:18","Vi phạm được phát hiện","Đúng ca vận chuyển. Xe không phủ bạt, phun sương cổng tắt."],
+     ["HÔM NAY · 08:19","Hướng dẫn khắc phục","Không phải một bản báo cáo. Hai việc cụ thể, ai làm, mất bao lâu."],
+     ["HÔM NAY · 08:29","Khắc phục trong 11 phút","Camera tự xác minh. Anh Tuấn không phải chờ ai duyệt."],
+     ["CUỐI THÁNG","Hồ sơ năng lực môi trường",""]],
+  ctaT:"Không có PreventAir", ctaS:"Bụi phát ra cả buổi sáng. Vài ngày sau đoàn thanh tra tới, lập biên bản, phạt 15 đến 20 triệu. Không ai biết lỗi nằm ở đâu để sửa.",
+  ctbT:"Có PreventAir", ctbS:"Phát thải dừng sau 11 phút. Không biên bản, không phạt, và có bằng chứng để chứng minh mình tuân thủ.",
+  cap:"Toàn bộ sản phẩm mà nhà thầu nhìn thấy là cuộc trò chuyện này. Không cài app, không đăng nhập, không đào tạo.",
+  valT:"Giá trị nhà thầu nhận được",
+  v:["Tiền phạt tránh được","Khắc phục trong hạn","Điểm tuân thủ","Ngày thi công không bị đình chỉ"],
+  b1:"Phí PreventAir cả tháng", b2:"Giá trị rủi ro tránh được",
+  evT:"Hồ sơ năng lực môi trường", ev1:"Hồ sơ năng lực môi trường, tháng 8/2026",
+  ev2:"4 sự kiện, 4 lần khắc phục trong hạn, 0 vi phạm bị ghi nhận. Có ảnh, có chuỗi thời gian, có chữ ký thời gian.",
+  ev3:"Tải về để nộp thầu",
+  d1:"Hôm qua, 15:02", d2:"Hôm nay, 08:18", d3:"Hôm nay, 08:33", d4:"31 tháng 8",
+  a_t:"🌤 Dự báo rủi ro bụi cho ngày mai",
+  a_b:"Ngày mai 08:00 đến 11:00, gió Đông Nam 3 đến 4 m/s thổi thẳng về khu dân cư Trung Hòa, độ ẩm 58%. Ca đào móng block B và ca vận chuyển đất của anh rơi đúng khung này.",
+  a_l:["Rủi ro bụi: <b>CAO</b>","Nếu vi phạm: <b>15 đến 20 triệu</b>","Dời ca đào sang 14:00: <b>chi phí 0 đồng</b>, tiến độ không đổi"],
+  a_c:"Dời lịch theo đề xuất",
+  me1:"Ok dời ca đào sang chiều. Ca vận chuyển giữ nguyên, xe đã book rồi.",
+  ack_t:"✓ Đã ghi nhận", ack_b:"Lịch đã cập nhật. Rủi ro chung của ngày mai giảm từ CAO xuống TRUNG BÌNH. Ca vận chuyển buổi sáng vẫn còn rủi ro, hệ thống sẽ giám sát chặt khung 08:00 đến 11:00.",
+  w_t:"⚠ Cảnh báo vi phạm bụi", w_b:"Công trường Trung Hòa đang phát thải vượt ngưỡng tại cổng số 2. Camera và cảm biến cùng xác nhận.",
+  w_l:["<b>L2</b> Xe chở đất không phủ bạt","<b>L3</b> Hệ phun sương cổng đang tắt"],
+  w_f:"Khắc phục trong <b>30 phút</b> để không bị ghi nhận vi phạm. Rủi ro phạt: <b>15 đến 20 triệu</b>.",
+  w_c:"Xem hướng dẫn khắc phục",
+  c_t:"🛠 Hai việc cần làm ngay",
+  c_1:"Bật hệ phun sương cổng 2", c_1s:"Công tắc ở tủ điện cạnh chốt bảo vệ. Khoảng 2 phút.",
+  c_2:"Phủ bạt thùng xe 29H-421.xx trước khi ra cổng", c_2s:"Bạt để ở kho vật tư ô số 4. Khoảng 6 phút cho một xe.",
+  c_f:"Xong việc nào thì bấm việc đó. Không cần chụp ảnh, camera cổng sẽ tự xác minh.",
+  me2:"Xong cả hai rồi nhé.",
+  ver_t:"Đang xác minh", ver_b:"Camera cổng 2 đang kiểm tra lại. Cảm biến hàng rào đang đo phần dôi PM10.",
+  ok_t:"✓ Đã khắc phục, không ghi nhận vi phạm", ok_b:"Phun sương đã bật, thùng xe đã phủ bạt. Phần dôi PM10 giảm 94% và về dưới ngưỡng.",
+  ok_l:["Thời gian khắc phục: <b>11 phút</b> (hạn 30 phút)","Điểm tuân thủ tháng này: <b>88 trên 100</b>","Rủi ro phạt tránh được: <b>15 đến 20 triệu</b>"],
+  r_t:"📄 Báo cáo tháng 8/2026", r_b:"Công trường Trung Hòa đã đóng tháng với 4 sự kiện, cả 4 đều khắc phục trong hạn và không có vi phạm nào bị ghi nhận.",
+  r_l:["Phạt tránh được: <b>35 triệu</b>","Phí dịch vụ: <b>3,2 triệu</b>","Không có ngày nào bị đình chỉ thi công"],
+  r_c:"Tải hồ sơ năng lực môi trường",
+  mil:"triệu ₫"
+ }
+};
+const q=function(i){return document.getElementById(i);};
+const z=function(){ return Z[(typeof LANG!=='undefined'&&LANG==='vi')?'vi':'en']; };
+
+const SENT=[]; const CK={1:false,2:false}; const LASTV={};
+const M={
+ adv:function(){var L=z();return '<div class="ttl">'+L.a_t+'</div>'+L.a_b+'<ul>'+L.a_l.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul><div class="zncta">'+L.a_c+'</div>';},
+ ack:function(){var L=z();return '<div class="ttl" style="color:#0ca30c">'+L.ack_t+'</div>'+L.ack_b;},
+ war:function(){var L=z();return '<div class="ttl">'+L.w_t+'</div>'+L.w_b+'<ul>'+L.w_l.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul><div style="margin-top:8px">'+L.w_f+'</div><div class="zncta">'+L.w_c+'</div>';},
+ coach:function(){var L=z();return '<div class="ttl">'+L.c_t+'</div>'
+   +'<div class="znchk" id="znck1"><div class="bx">✓</div><div class="cw">'+L.c_1+'<em>'+L.c_1s+'</em></div></div>'
+   +'<div class="znchk" id="znck2"><div class="bx">✓</div><div class="cw">'+L.c_2+'<em>'+L.c_2s+'</em></div></div>'
+   +'<div style="margin-top:6px;color:#7c8798;font-size:12px">'+L.c_f+'</div>';},
+ ver:function(){var L=z();return '<div class="ttl" style="color:#2a78d6">'+L.ver_t+'</div>'+L.ver_b;},
+ ok:function(){var L=z();return '<div class="ttl">'+L.ok_t+'</div>'+L.ok_b+'<ul>'+L.ok_l.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>';},
+ rep:function(){var L=z();return '<div class="ttl" style="color:#2a78d6">'+L.r_t+'</div>'+L.r_b+'<ul>'+L.r_l.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul><div class="zncta g">'+L.r_c+'</div>';}
+};
+function renderChat(){
+  var c=q('znChat'), ty=q('znTyping');
+  c.innerHTML='';
+  SENT.forEach(function(m){
+    var e=document.createElement('div');
+    if(m.k==='dv'){ e.className='zndv'; e.textContent=z()[m.key]; }
+    else if(m.k==='me'){ e.className='znmsg me'; e.innerHTML='<div class="znbub">'+z()[m.key]+'<div class="znmini">'+m.time+' ✓✓</div></div>'; }
+    else { e.className='znmsg them'; e.innerHTML='<div class="znbub '+m.cls+'">'+M[m.fn]()+'<div class="znmini">'+m.time+'</div></div>'; }
+    c.appendChild(e);
+  });
+  c.appendChild(ty);
+  if(CK[1]&&q('znck1')) q('znck1').classList.add('done');
+  if(CK[2]&&q('znck2')) q('znck2').classList.add('done');
+  c.scrollTop=c.scrollHeight;
+}
+function dv(k){SENT.push({k:'dv',key:k});renderChat();}
+function me(k,t){SENT.push({k:'me',key:k,time:t});renderChat();}
+function them(cls,t,fn){SENT.push({k:'them',cls:cls,time:t,fn:fn});renderChat();}
+function typing(on){q('znTyping').classList.toggle('on',on);var c=q('znChat');c.scrollTop=c.scrollHeight;}
+function mo(n){ Array.prototype.forEach.call(document.querySelectorAll('#znDay .znmo'),function(e){
+  var d=+e.dataset.i; e.classList.remove('act'); if(d<=n)e.classList.add('on'); if(d===n)e.classList.add('act'); }); }
+function countTo(id,to,dur,fmt,cls){
+  var el=q('znn'+id), tile=q('znvt'+id); if(cls) tile.className='znvt '+cls;
+  LASTV[id]={to:to,fmt:fmt};
+  var t0=performance.now();
+  (function step(now){ var k=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-k,3);
+    el.innerHTML=fmt(Math.round(to*e)); if(k<1) requestAnimationFrame(step); })(t0);
+}
+var mil=function(v){ return (v/1e6).toFixed(1).replace('.', (typeof LANG!=='undefined'&&LANG==='vi')?',':'.')+' <small>'+z().mil+'</small>'; };
+var of1=function(v){return v+'<small>/1</small>';}, of4=function(v){return v+'<small>/4</small>';};
+var p100=function(v){return v+' <small>/100</small>';}, d22=function(v){return v+' <small>/22</small>';};
+
+var EV=[
+ {t:0.4,f:function(){mo(1);dv('d1');}},
+ {t:1.2,f:function(){typing(true);}},
+ {t:3.0,f:function(){typing(false);them('adv','15:02','adv');}},
+ {t:8.5,f:function(){mo(2);me('me1','15:06');}},
+ {t:10.5,f:function(){typing(true);}},
+ {t:12.0,f:function(){typing(false);them('','15:06','ack');}},
+ {t:16.0,f:function(){mo(3);dv('d2');}},
+ {t:17.0,f:function(){typing(true);}},
+ {t:18.5,f:function(){typing(false);them('war','08:18','war');}},
+ {t:24.0,f:function(){mo(4);typing(true);}},
+ {t:25.5,f:function(){typing(false);them('coach','08:19','coach');}},
+ {t:31.0,f:function(){CK[1]=true;if(q('znck1'))q('znck1').classList.add('done');}},
+ {t:34.5,f:function(){CK[2]=true;if(q('znck2'))q('znck2').classList.add('done');}},
+ {t:36.0,f:function(){me('me2','08:29');}},
+ {t:37.5,f:function(){typing(true);}},
+ {t:39.0,f:function(){typing(false);them('','08:29','ver');}},
+ {t:43.0,f:function(){mo(5);dv('d3');}},
+ {t:44.0,f:function(){typing(true);}},
+ {t:45.5,f:function(){typing(false);them('ok','08:33','ok');}},
+ {t:48.0,f:function(){countTo(1,20000000,1400,mil,'hot');countTo(2,1,900,of1,'hot');}},
+ {t:50.5,f:function(){countTo(3,88,1100,p100,'blue');countTo(4,22,900,d22,'blue');}},
+ {t:55.0,f:function(){mo(6);dv('d4');}},
+ {t:56.0,f:function(){typing(true);}},
+ {t:57.5,f:function(){typing(false);them('','31/08','rep');countTo(1,35000000,1500,mil,'hot');countTo(2,4,900,of4,'hot');}},
+ {t:61.0,f:function(){q('znbf1').style.width='9%';q('znbf2').style.width='100%';}},
+ {t:64.0,f:function(){q('znEvid').classList.add('on');}}
+];
+var raf=null,t0=null,fired=0,running=false,DUR=68;
+function frame(ts){ if(t0===null)t0=ts; var t=(ts-t0)/1000;
+  while(fired<EV.length&&EV[fired].t<=t){EV[fired].f();fired++;}
+  q('znProg').style.width=Math.min(100,(t/DUR)*100)+'%';
+  if(t<DUR) raf=requestAnimationFrame(frame);
+  else { running=false; q('znPlay').textContent=z().replay; } }
+function znStart(){ if(running)return; running=true;t0=null;raf=requestAnimationFrame(frame); q('znPlay').textContent=z().running; }
+function znReset(){
+  if(raf)cancelAnimationFrame(raf);
+  running=false;t0=null;fired=0;SENT.length=0;CK[1]=false;CK[2]=false;
+  Object.keys(LASTV).forEach(function(k){delete LASTV[k];});
+  renderChat();typing(false);
+  Array.prototype.forEach.call(document.querySelectorAll('#znDay .znmo'),function(e){e.classList.remove('on','act');});
+  ['1','2','3','4'].forEach(function(i){q('znvt'+i).className='znvt';});
+  q('znn1').innerHTML='0 <small>'+z().mil+'</small>'; q('znn2').innerHTML='0<small>/0</small>';
+  q('znn3').innerHTML='– <small>/100</small>'; q('znn4').innerHTML='–';
+  q('znbf1').style.width='0';q('znbf2').style.width='0';
+  q('znEvid').classList.remove('on'); q('znProg').style.width='0';
+  q('znPlay').textContent=z().play;
+}
+function ST(id,val){ var e=q(id); if(e) e.textContent=val; }
+function znRender(){
+  var L=z();
+  ST('znWho',L.who); ST('znReset',L.reset);
+  ST('znOa',L.oa); ST('znCap',L.cap);
+  ST('znValT',L.valT);
+  ['znL1','znL2','znL3','znL4'].forEach(function(id,i){ST(id,L.v[i]);});
+  ST('znB1',L.b1); ST('znB2',L.b2);
+  ST('znEvT',L.evT); ST('znEv1',L.ev1);
+  ST('znEv2',L.ev2); ST('znEv3',L.ev3);
+  renderChat();
+  Object.keys(LASTV).forEach(function(id){ var e=q('znn'+id); if(e) e.innerHTML=LASTV[id].fmt(LASTV[id].to); });
+  ST('znPlay', running ? L.running : (fired>=EV.length ? L.replay : L.play));
+  // restore active moment styling after a re-render
+  var n=0; if(fired>0){ [[1,0],[2,3],[3,6],[4,9],[5,16],[6,21]].forEach(function(p){ if(fired>p[1]) n=p[0]; }); }
+  if(n) mo(n);
+}
+q('znPlay').onclick=function(){ if(!running&&fired>=EV.length) znReset(); znStart(); };
+q('znReset').onclick=znReset;
+Array.prototype.forEach.call(document.querySelectorAll('.lang button'),function(b){
+  b.addEventListener('click',function(){ setTimeout(znRender,0); }); });
+znReset(); znRender();
+})();
+</script>
+</body>
+</html>
